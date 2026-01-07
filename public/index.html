@@ -7,11 +7,55 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
    <link rel="icon" type="image/png" href="../Gemini_Generated_Image_r2dtr8r2dtr8r2dt.png">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         /* * ======================================================================================
          * SECTION 1: CSS VARIABLES & RESET
          * ======================================================================================
          */
+         /* =========================================
+   RESPONSIVE MOBILE STYLES
+   ========================================= */
+@media (max-width: 768px) {
+
+    /* 1. Stack the Video Cards vertically on phones */
+    #video-grid {
+        flex-direction: column;
+        align-items: center;
+        flex-wrap: nowrap; /* Prevent side-by-side on tiny screens */
+    }
+
+    /* 2. Make Video Cards take full width of the phone */
+    .video-card {
+        width: 95% !important; /* Force full width */
+        height: 220px;         /* Fixed height for mobile */
+        margin-bottom: 10px;
+    }
+
+    /* 3. Adjust the Bottom Control Bar */
+    #controls-bar {
+        padding: 5px 10px;
+        justify-content: space-around; /* Space buttons evenly */
+    }
+    
+    /* 4. Make buttons smaller to fit screen */
+    .control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    /* 5. Hide less important elements on mobile */
+    .controls-left, .controls-right {
+        display: none; /* Hide clock and sidebar button on tiny screens to save space */
+    }
+
+    /* 6. Make the Lobby/Login Box fit the screen */
+    .lobby-card {
+        width: 90% !important;
+        padding: 20px;
+    }
+}
         :root {
             /* Color Palette - Dark Theme (Enterprise) */
             --bg-app: #0f1115;
