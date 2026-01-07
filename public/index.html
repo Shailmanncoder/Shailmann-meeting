@@ -721,7 +721,7 @@
     <div class="controls-right">
     </div>
 </div>
-         >
+         
 
     <script src="/socket.io/socket.io.js"></script>
     
@@ -802,53 +802,89 @@
         }
 
         // --- Guest Flow ---
-        async function initGuestFlow() {
-            const name = document.getElementById('guest-name').value.trim();
-            const room = document.getElementById('join-room-id').value.trim();
-            
-            if(!name || !room) return showToast('Please fill all fields', 'error');
-
-            state.userName = name;
-            state.roomId = room;
-            state.isHost = false;
-
-            await setupMedia();
-            document.getElementById('connection-status').innerText = `Connecting to ${room}...`;
-            goToStep(4);
+        async function initHostFlow() {
+    try {
+        const name = document.getElementById('host-name').value.trim();
+        const room = document.getElementById('create-room-id').value.trim() || Math.random().toString(36).substring(7);
+        
+        if(!name) {
+            alert("Please enter your name first.");
+            return;
         }
+        
+        // 1. Set State
+        state.userName = name;
+        state.roomId = room;
+        state.isHost = true;
+        
+        // 2. Update Status Text immediately so you know it's working
+        const statusEl = document.getElementById('connection-status');
+        if(statusEl) {
+            statusEl.innerText = `Room: ${room} | Initializing...`;
+            statusEl.style.color = 'orange';
+        }
+
+        // 3. Try to get Camera (With Safety Catch)
+        try {
+            await setupMedia();
+        } catch (mediaErr) {
+            console.error(mediaErr);
+            alert("Warning: Camera access failed. Moving to lobby anyway.");
+        }
+
+        // 4. FORCE Navigation
+        goToStep(4);
+        
+    } catch (e) {
+        // This catches typos or missing IDs
+        alert("Critical Error: " + e.message);
+    }
+}
 
         /* * =================================================
          * 2. MEDIA HANDLING (Camera/Mic)
          * =================================================
          */
         async function setupMedia() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                state.localStream = stream;
-                
-                // Set to preview
-                els.previewVideo.srcObject = stream;
-                
-                // Populate Settings dropdowns
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const audioSelect = document.getElementById('audio-input-select');
-                const videoSelect = document.getElementById('video-input-select');
-                
+    try {
+        // 1. Get the Stream
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        state.localStream = stream;
+        
+        // 2. Show in Preview
+        const preview = document.getElementById('preview-video');
+        if (preview) {
+            preview.srcObject = stream;
+        }
+
+        // 3. Safely Try to List Devices (This often crashes on phones, so we wrap it)
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            // Only try to populate dropdowns if they exist
+            const audioSelect = document.getElementById('audio-input-select');
+            const videoSelect = document.getElementById('video-input-select');
+            
+            if (audioSelect && videoSelect) {
                 devices.forEach(device => {
                     const option = document.createElement('option');
                     option.value = device.deviceId;
-                    option.text = device.label || `${device.kind} - ${device.deviceId.substring(0,5)}`;
+                    option.text = device.label || device.kind;
                     if(device.kind === 'audioinput') audioSelect.appendChild(option);
                     else if(device.kind === 'videoinput') videoSelect.appendChild(option);
                 });
-
-                return true;
-            } catch (err) {
-                showToast('Camera/Mic access denied!', 'error');
-                console.error(err);
-                return false;
             }
+        } catch (deviceErr) {
+            console.warn("Could not list devices (minor error):", deviceErr);
         }
+
+        return true;
+
+    } catch (err) {
+        // If this alerts, it means the browser blocked the camera
+        alert("Camera Error: " + err.name + " - " + err.message);
+        return false;
+    }
+}
 
         // --- Toggle Buttons (Mic/Cam) ---
         document.getElementById('mic-btn').onclick = toggleMic;
