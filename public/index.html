@@ -924,13 +924,17 @@ async function initGuestFlow() {
       // FIND THIS BLOCK NEAR THE BOTTOM OF YOUR SCRIPT AND REPLACE IT
 document.getElementById('btn-enter-meeting').onclick = () => {
     
-    // 1. Setup Local Video
-    els.localVideo.srcObject = state.localStream;
+    // ... existing code ...
     
-    // 2. Switch UI
+    // 1. Switch UI
     els.lobby.classList.add('hidden');
     els.app.classList.remove('hidden');
-    document.getElementById('display-room-id').innerText = state.roomId;
+
+    // 2. ENABLE PROTECTION HERE
+    enableRefreshProtection(); // <--- ADD THIS LINE
+
+    // ... rest of your code ...
+
     
     // 3. DECIDE: Are you Host or Guest?
     console.log("Joining Meeting. Am I Host?", state.isHost);
@@ -1506,6 +1510,22 @@ document.getElementById('chat-input').addEventListener('keypress', (e) => {
                 await video.requestPictureInPicture();
             }
         }
+        // Function to warn user before refreshing
+function handleRefreshWarning(e) {
+    // Cancel the event
+    e.preventDefault(); 
+    // Chrome requires returnValue to be set
+    e.returnValue = ''; 
+    return "Are you sure you want to leave the meeting?";
+}
+
+function enableRefreshProtection() {
+    window.addEventListener('beforeunload', handleRefreshWarning);
+}
+
+function disableRefreshProtection() {
+    window.removeEventListener('beforeunload', handleRefreshWarning);
+}
 
     </script>
 </body>
