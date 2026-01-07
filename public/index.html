@@ -808,33 +808,27 @@ async function initGuestFlow() {
     const room = document.getElementById('join-room-id').value.trim();
     
     if(!name || !room) {
-        alert("Please enter both your Name and Room ID.");
+        alert("Please enter both Name and Room ID");
         return;
     }
 
-    // 1. Set State
+    // 1. STRICTLY SET HOST FLAG TO FALSE
     state.userName = name;
     state.roomId = room;
-    state.isHost = false;
+    state.isHost = false; // <--- CRITICAL FIX
 
-    // 2. Show status
-    document.getElementById('connection-status').innerText = `Preparing to join ${room}...`;
-    document.getElementById('connection-status').style.color = 'orange';
+    // 2. Update Status Text
+    const statusEl = document.getElementById('connection-status');
+    statusEl.innerText = `Preparing to join ${room} as Guest...`;
+    statusEl.style.color = 'orange';
 
-    // 3. FORCE Camera Request
+    // 3. Get Camera
     try {
-        console.log("Requesting Guest Camera...");
-        const success = await setupMedia(); // This triggers the popup
-        
-        if (success) {
-            console.log("Guest Camera OK.");
-            goToStep(4); // Move to Green Room
-        } else {
-            alert("Permission Denied: You must allow Camera/Mic to join.");
-        }
+        await setupMedia();
+        // 4. Go to Green Room
+        goToStep(4);
     } catch (e) {
-        console.error(e);
-        alert("Error starting camera: " + e.message);
+        alert("Camera Error: " + e.message);
     }
 }
         /* * =================================================
@@ -927,25 +921,45 @@ async function initGuestFlow() {
          * 3. JOINING & SOCKET SIGNALING
          * =================================================
          */
-        document.getElementById('btn-enter-meeting').onclick = () => {
-            // Setup Local Video in Main Stage
-            els.localVideo.srcObject = state.localStream;
-            
-            // Switch UI
-            els.lobby.classList.add('hidden');
-            els.app.classList.remove('hidden');
-            document.getElementById('display-room-id').innerText = state.roomId;
-            
-            // Host logic vs Guest logic
-            if (state.isHost) {
-                socket.emit('join-room', { roomId: state.roomId, userName: state.userName, isHost: true });
-                addToParticipants(socket.id, state.userName + " (Host)");
-            } else {
-                // Guests must wait
-                showToast('Requesting entry...', 'warning');
-                socket.emit('request-entry', { roomId: state.roomId, userName: state.userName });
-            }
-        };
+      // FIND THIS BLOCK NEAR THE BOTTOM OF YOUR SCRIPT AND REPLACE IT
+document.getElementById('btn-enter-meeting').onclick = () => {
+    
+    // 1. Setup Local Video
+    els.localVideo.srcObject = state.localStream;
+    
+    // 2. Switch UI
+    els.lobby.classList.add('hidden');
+    els.app.classList.remove('hidden');
+    document.getElementById('display-room-id').innerText = state.roomId;
+    
+    // 3. DECIDE: Are you Host or Guest?
+    console.log("Joining Meeting. Am I Host?", state.isHost);
+
+    if (state.isHost === true) {
+        // HOST PATH: Join immediately
+        console.log("Host joining directly.");
+        socket.emit('join-room', { roomId: state.roomId, userName: state.userName, isHost: true });
+        
+        // Add self to list
+        addToParticipants(socket.id, state.userName + " (Host)");
+        
+        // Visual Update
+        document.querySelector('.user-info-badge').innerText = "You (Host)";
+        
+    } else {
+        // GUEST PATH: Ask for permission
+        console.log("Guest requesting entry...");
+        
+        // Disable controls until approved
+        showToast('Waiting for Host to let you in...', 'warning');
+        
+        // Send request to server
+        socket.emit('request-entry', { roomId: state.roomId, userName: state.userName });
+        
+        // Visual Update
+        document.querySelector('.user-info-badge').innerText = "You (Guest)";
+    }
+};
 
         // --- Socket Events ---
 
