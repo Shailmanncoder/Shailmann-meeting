@@ -14,46 +14,50 @@
          * ======================================================================================
          */
          /* =========================================
-   RESPONSIVE MOBILE STYLES
+/* =========================================
+   MOBILE RESPONSIVENESS (Paste at bottom)
    ========================================= */
 @media (max-width: 768px) {
 
-    /* 1. Stack the Video Cards vertically on phones */
+    /* 1. Stack videos vertically on phones */
     #video-grid {
-        flex-direction: column;
-        align-items: center;
-        flex-wrap: nowrap; /* Prevent side-by-side on tiny screens */
+        display: flex;
+        flex-direction: column; /* Stack top to bottom */
+        flex-wrap: nowrap;
+        padding: 5px;
+        width: 100%;
+        overflow-x: hidden; /* Stop horizontal scrolling */
     }
 
-    /* 2. Make Video Cards take full width of the phone */
+    /* 2. Force Video Cards to be Full Width */
     .video-card {
-        width: 95% !important; /* Force full width */
-        height: 220px;         /* Fixed height for mobile */
-        margin-bottom: 10px;
+        width: 100% !important; /* Override the desktop fixed width */
+        max-width: none !important;
+        height: 240px !important; /* Fixed height for mobile view */
+        margin: 0 0 10px 0;
+        flex-shrink: 0; /* Prevent shrinking */
     }
 
-    /* 3. Adjust the Bottom Control Bar */
+    /* 3. Fix Bottom Bar (Allow scrolling if buttons are too big) */
     #controls-bar {
-        padding: 5px 10px;
-        justify-content: space-around; /* Space buttons evenly */
-    }
-    
-    /* 4. Make buttons smaller to fit screen */
-    .control-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
+        padding: 5px;
+        justify-content: space-evenly;
+        overflow-x: auto;
     }
 
-    /* 5. Hide less important elements on mobile */
+    /* 4. Hide Clock and Extra Space on Mobile to fit buttons */
     .controls-left, .controls-right {
-        display: none; /* Hide clock and sidebar button on tiny screens to save space */
+        display: none !important;
     }
 
-    /* 6. Make the Lobby/Login Box fit the screen */
-    .lobby-card {
-        width: 90% !important;
-        padding: 20px;
+    /* 5. Make Sidebar (Chat) Full Screen on Mobile */
+    #sidebar-panel {
+        width: 100% !important;
+        height: 100% !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 2000;
     }
 }
         :root {
