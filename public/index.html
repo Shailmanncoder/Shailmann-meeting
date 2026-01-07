@@ -369,17 +369,14 @@
         .controls-center { display: flex; gap: 15px; }
         .controls-right { justify-content: flex-end; }
 
-        .control-btn {
-            width: 50px; height: 50px;
-            border-radius: 12px;
-            border: none;
-            background: var(--bg-element);
-            color: var(--text-main);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-        }
+       /* Inside @media (max-width: 768px) { ... } */
+
+.control-btn {
+    width: 38px !important;  /* Make buttons slightly smaller */
+    height: 38px !important;
+    font-size: 0.9rem !important;
+    margin: 0 2px; /* Small gap between buttons */
+}
         .control-btn:hover { background: var(--bg-hover); transform: translateY(-2px); }
         
         .control-btn.active-state { background: var(--bg-element); color: var(--text-main); }
@@ -518,26 +515,41 @@
 </head>
 <body>
 
-    <div id="toast-container" class="toast-container"></div>
-
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="margin-bottom: 20px;">Audio & Video Settings</h3>
-            <div class="input-group">
-                <label>Microphone</label>
-                <select id="audio-input-select" class="lobby-input"><option>Default Microphone</option></select>
-            </div>
-            <div class="input-group">
-                <label>Camera</label>
-                <select id="video-input-select" class="lobby-input"><option>Default Camera</option></select>
-            </div>
-            <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button class="btn-secondary" onclick="closeSettings()" style="width: auto; padding: 8px 16px;">Cancel</button>
-                <button class="btn-primary" onclick="saveSettings()" style="width: auto; padding: 8px 16px;">Save Changes</button>
-            </div>
-        </div>
+    <div id="controls-bar">
+    <div class="controls-left">
+        <span id="clock-display" style="font-weight: 500; color: var(--text-muted);">12:00 PM</span>
+    </div>
+    
+    <div class="controls-center">
+        <button id="mic-btn" class="control-btn" title="Toggle Microphone">
+            <i class="fas fa-microphone"></i>
+        </button>
+        <button id="cam-btn" class="control-btn" title="Toggle Camera">
+            <i class="fas fa-video"></i>
+        </button>
+        <button id="screen-btn" class="control-btn" title="Share Screen">
+            <i class="fas fa-desktop"></i>
+        </button>
+        <button id="record-btn" class="control-btn" title="Start Recording">
+            <i class="fas fa-record-vinyl"></i>
+        </button>
+        <button id="reaction-btn" class="control-btn" title="Send Reaction">
+            <i class="fas fa-smile"></i>
+        </button>
+        
+        <button class="control-btn" onclick="toggleSidebar()" title="Chat / Participants">
+            <i class="fas fa-bars"></i>
+            <div class="notification-badge" id="chat-badge">0</div>
+        </button>
+        
+        <button class="control-btn leave-btn" onclick="leaveMeeting()">
+            <i class="fas fa-phone-slash"></i>
+        </button>
     </div>
 
+    <div class="controls-right">
+    </div>
+</div>
     <div id="waiting-room-modal" class="modal-overlay">
         <div class="modal-box">
             <h3><i class="fas fa-user-lock"></i> Waiting Room Request</h3>
