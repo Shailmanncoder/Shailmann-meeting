@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dominant Responsive Screen Share App - PRO Host Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* =========================================
+           1. CORE LAYOUT & VARIABLES
+           ========================================= */
+        :root {
+            --bg-dark: #0d1117;
+            --bg-panel: #161b22;
+            --bg-element: #24292f;
+            --accent-blue: #2f81f7;
+            --accent-green: #238636;
+            --accent-red: #da3633;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --border-color: #30363d;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .hidden { display: none !important; }
+        
+        /* Utility for centering content */
+        .flex-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* =========================================
+           2. MAIN VIDEO AREA
+           ========================================= */
+        #main-video-container {
+            flex-grow: 1; 
+            position: relative; 
+            display: flex; 
+            padding: 10px;
+            gap: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        /* --- A. Default Grid (Gallery View) --- */
+        #video-grid-default {
+            flex-grow: 1; 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 15px; 
+            overflow-y: auto;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* --- B. Dominant View (Screen Share Mode) --- */
+        #dominant-screen-container {
+            flex-grow: 1;
+            width: 100%;
+            height: 100%; /* Occupy full height minus the top bar */
+            position: relative;
+            background-color: #000;
+            display: none; /* Hidden by default */
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        #dominant-screen-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensures the whole screen is visible */
+        }
+        
+        .screen-share-label {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #4ade80; /* Bright green */
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            z-index: 15;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        /* --- C. Top Bar Overlay (Webcams during Screen Share) --- */
+        /* This moves webcams to the TOP when someone is sharing */
+        #overlay-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 140px; /* Fixed height for the top strip */
+            display: none; /* Flex when active */
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            z-index: 20;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            padding-top: 10px;
+            pointer-events: none; /* Let clicks pass through to video */
+        }
+        
+        #overlay-grid > div {
+            pointer-events: auto; /* Re-enable clicks on the video cards themselves */
+        }
+
+        /* =========================================
+           3. VIDEO CARD STYLES
+           ========================================= */
+        .video-container {
+            position: relative; 
+            background-color: var(--bg-element); 
+            border-radius: 12px; 
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Grid sizing logic */
+        #video-grid-default .video-container {
+            width: 400px;
+            height: 300px;
+            max-width: 100%;
+        }
+
+        .video-container video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            background: #000;
+        }
+        
+        /* Local video mirroring */
+        #local-video { transform: scaleX(-1); } 
+        
+        /* Top Bar Overlay Video Styles (Small) */
+        .overlay-video-container {
+            width: 180px; 
+            height: 110px;
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+            margin: 0 5px;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .user-label {
+            position: absolute; 
+            bottom: 8px; 
+            left: 8px; 
+            background: rgba(0, 0, 0, 0.7); 
+            color: white;
+            padding: 4px 10px; 
+            border-radius: 4px; 
+            font-size: 13px; 
+            z-index: 10;
+            backdrop-filter: blur(2px);
+            max-width: 80%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* =========================================
+           4. HOST / ADMIN CONTROLS UI
+           ========================================= */
+        #waiting-room-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 300px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none; /* Visible only to Host */
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 12px;
+            background-color: var(--bg-element);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .waiting-list {
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .waiting-user-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-dark);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .waiting-user-name { font-size: 14px; font-weight: 500; }
+
+        .admin-actions { display: flex; gap: 5px; }
+
+        .btn-accept { background: var(--accent-green); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-deny { background: var(--accent-red); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-accept:hover { opacity: 0.9; }
+
+        /* Notification Toast for Non-Hosts */
+        #status-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-blue);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            z-index: 2000;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+
+        /* =========================================
+           5. CONTROLS BAR (BOTTOM)
+           ========================================= */
+        #controls-bar {
+            background-color: var(--bg-panel); 
+            padding: 15px 30px; 
+            display: flex; 
+            justify-content: center;
+            align-items: center; 
+            border-top: 1px solid var(--border-color);
+            gap: 20px;
+            z-index: 100;
+        }
+        
+        .control-btn {
+            background-color: var(--bg-element); 
+            color: var(--text-main); 
+            border: 1px solid var(--border-color); 
+            width: 50px;
+            height: 50px;
+            border-radius: 50%; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .control-btn:hover { background-color: #30363d; transform: scale(1.05); }
+        .control-btn.active { background-color: var(--accent-green); color: white; border-color: var(--accent-green); }
+        .control-btn.leave-btn { 
+            background-color: var(--accent-red); 
+            color: white; 
+            border-color: var(--accent-red);
+            width: auto;
+            padding: 0 25px;
+            border-radius: 25px;
+            font-weight: 600;
+        }
+
+        /* =========================================
+           6. LOBBY & FORMS
+           ========================================= */
+        #lobby-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(13, 17, 23, 0.98); 
+            z-index: 5000; 
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center;
+        }
+
+        .lobby-card {
+            background: var(--bg-panel);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+            width: 350px;
+            text-align: center;
+        }
+
+        .lobby-card h2 { margin-top: 0; color: white; }
+        .lobby-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+
+        input.lobby-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: white;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input.lobby-input:focus { outline: 2px solid var(--accent-blue); border-color: transparent; }
+
+        button.primary-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button.primary-btn:hover { background: #1f6feb; }
+        
+        button.secondary-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        button.secondary-btn:hover { color: white; border-color: white; }
+
+        /* Ready Room Preview */
+        #ready-room-video-container {
+            width: 100%; height: 200px; 
+            background: black; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        #ready-room-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+
+        /* =========================================
+           7. RESPONSIVE MEDIA QUERIES
+           ========================================= */
+        @media (max-width: 768px) {
+            #video-grid-default .video-container { width: 100%; height: 220px; }
+            #overlay-grid { height: auto; flex-wrap: wrap; justify-content: flex-start; padding: 5px; }
+            .overlay-video-container { width: 100px; height: 75px; }
+            #controls-bar { padding: 10px; gap: 10px; }
+            .control-btn { width: 40px; height: 40px; font-size: 14px; }
+            #waiting-room-panel { width: 90%; left: 5%; top: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="status-toast">Notification Message</div>
+
+    <div id="waiting-room-panel">
+        <div class="panel-header">
+            <span><i class="fas fa-users-cog"></i> Waiting Room</span>
+            <button onclick="document.getElementById('waiting-room-panel').style.display='none'" style="background:none; border:none; color:white; cursor:pointer;"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="waiting-list" id="waiting-list-container">
+            <div style="text-align: center; color: gray; padding: 10px;" id="empty-list-msg">No one pending.</div>
+        </div>
+    </div>
+
+    <div id="lobby-overlay">
+        
+        <div id="initial-step" class="lobby-card">
+            <h2><i class="fas fa-video"></i> Secure Meeting</h2>
+            <p>Start a new session as Host or join an existing one.</p>
+            <button class="primary-btn" id="btn-create-meeting">Create New Meeting</button>
+            <button class="secondary-btn" id="btn-show-join">Join Existing Meeting</button>
+        </div>
+
+        <div id="create-step" class="lobby-card hidden">
+            <h2>Create Meeting Room</h2>
+            <p>You will be the <strong>Host</strong>.</p>
+            <input type="text" id="create-room-name" class="lobby-input" placeholder="Enter Room Name (e.g., WeeklySync)">
+            <input type="text" id="host-name-input" class="lobby-input" placeholder="Your Name">
+            <button class="primary-btn" id="btn-generate-link">Generate Link & Setup</button>
+            <button class="secondary-btn" onclick="showStep('initial-step')">Back</button>
+        </div>
+
+        <div id="share-step" class="lobby-card hidden">
+            <h2>Ready to Host!</h2>
+            <p>Send this link to participants:</p>
+            <div style="display: flex; gap: 5px; margin-bottom: 20px;">
+                <input type="text" id="share-link-input" class="lobby-input" style="margin:0;" readonly>
+                <button id="btn-copy-link" style="padding: 0 15px; background: var(--bg-element); border: 1px solid var(--border-color); color: white; border-radius: 6px; cursor: pointer;"><i class="fas fa-copy"></i></button>
+            </div>
+            <button class="primary-btn" id="btn-host-enter">Enter Ready Room</button>
+        </div>
+
+        <div id="join-step" class="lobby-card hidden">
+            <h2>Join Meeting</h2>
+            <p>You will enter the <strong>Waiting Room</strong> until approved.</p>
+            <input type="text" id="join-room-name" class="lobby-input" placeholder="Enter Room Name">
+            <input type="text" id="guest-name-input" class="lobby-input" placeholder="Your Name">
+            <button class="primary-btn" id="btn-guest-enter">Connect</button>
+            <button class="secondary-btn" onclick="showStep('initial-step')">Back</button>
+        </div>
+
+        <div id="ready-step" class="lobby-card hidden" style="width: 400px;">
+            <h2 id="ready-title">Camera Check</h2>
+            <div id="ready-room-video-container">
+                <video id="ready-room-video" autoplay muted playsinline></video>
+                <div style="position: absolute; bottom: 10px; left: 0; width: 100%; display: flex; justify-content: center; gap: 10px;">
+                    <button id="pre-mic-btn" class="control-btn active" style="width: 40px; height: 40px;"><i class="fas fa-microphone"></i></button>
+                    <button id="pre-cam-btn" class="control-btn active" style="width: 40px; height: 40px;"><i class="fas fa-video"></i></button>
+                </div>
+            </div>
+            <p id="ready-status-text">Everything looks good?</p>
+            <button class="primary-btn" id="btn-join-call">Join Call Now</button>
+            <div id="waiting-message" class="hidden" style="margin-top: 15px; color: #e3b341;">
+                <i class="fas fa-clock"></i> Waiting for Host to let you in...
+            </div>
+        </div>
+
+    </div>
+
+    <div id="main-video-container" class="hidden">
+        
+        <div id="overlay-grid">
+            </div>
+
+        <div id="video-grid-default">
+            <div class="video-container" id="local-video-container">
+                <video id="local-video" autoplay muted playsinline></video>
+                <div class="user-label">You</div>
+            </div>
+        </div>
+
+        <div id="dominant-screen-container">
+            <div class="screen-share-label" id="screen-share-info">Someone is sharing</div>
+            <video id="dominant-screen-video" autoplay playsinline></video>
+        </div>
+
+    </div>
+
+    <div id="controls-bar" class="hidden">
+        <button id="host-panel-btn" class="control-btn hidden" title="Waiting Room"><i class="fas fa-users-cog"></i></button>
+        <button id="mic-toggle" class="control-btn active" title="Mute/Unmute"><i class="fas fa-microphone"></i></button>
+        <button id="camera-toggle" class="control-btn active" title="Camera On/Off"><i class="fas fa-video"></i></button>
+        <button id="screen-share-btn" class="control-btn" title="Share Screen"><i class="fas fa-desktop"></i></button>
+        <button id="chat-toggle" class="control-btn" title="Chat (Coming Soon)"><i class="fas fa-comment-alt"></i></button>
+        <button id="leave-btn" class="control-btn leave-btn"><i class="fas fa-phone-slash"></i> End</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        /**
+         * =========================================================================
+         * JAVASCRIPT LOGIC
+         * =========================================================================
+         */
+
+        // --- CONFIGURATION ---
+        // REPLACE this with your computer's local IP address if testing on WiFi
+        const LOCAL_IP_ADDRESS = window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname;
+        const PORT = window.location.port || 3000;
+        const BASE_URL = `${window.location.protocol}//${LOCAL_IP_ADDRESS}:${PORT}`;
+
+        // --- GLOBAL STATE ---
+        let socket;
+        let localStream = null;
+        let screenStream = null;
+        let originalVideoTrack = null;
+        let peerConnections = {};
+        let dataChannels = {};
+        let peerInfo = {}; // Stores names
+        
+        let myName = "User";
+        let myRoom = "";
+        let isHost = false;
+        let isScreenSharing = false;
+
+        const iceServers = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+
+        // --- DOM ELEMENTS ---
+        const lobbyOverlay = document.getElementById('lobby-overlay');
+        const mainVideoContainer = document.getElementById('main-video-container');
+        const controlsBar = document.getElementById('controls-bar');
+        
+        const videoGridDefault = document.getElementById('video-grid-default');
+        const dominantScreenContainer = document.getElementById('dominant-screen-container');
+        const overlayGrid = document.getElementById('overlay-grid');
+        
+        const localVideo = document.getElementById('local-video');
+        const dominantVideo = document.getElementById('dominant-screen-video');
+        const localVideoContainer = document.getElementById('local-video-container');
+
+        // --- 1. LOBBY NAVIGATION LOGIC ---
+        
+        function showStep(stepId) {
+            ['initial-step', 'create-step', 'share-step', 'join-step', 'ready-step'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(stepId).classList.remove('hidden');
+        }
+
+        // Check URL for room params
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('room')) {
+            document.getElementById('join-room-name').value = urlParams.get('room');
+            showStep('join-step');
+        } else {
+            showStep('initial-step');
+        }
+
+        // --- 2. SETUP EVENT LISTENERS ---
+
+        document.getElementById('btn-create-meeting').onclick = () => showStep('create-step');
+        document.getElementById('btn-show-join').onclick = () => showStep('join-step');
+
+        // A. CREATE MEETING (HOST FLOW)
+        document.getElementById('btn-generate-link').onclick = () => {
+            const roomName = document.getElementById('create-room-name').value.trim();
+            const userName = document.getElementById('host-name-input').value.trim();
+            if(!roomName || !userName) return alert("Please fill all fields");
+
+            myRoom = roomName;
+            myName = userName;
+            isHost = true;
+
+            const link = `${BASE_URL}/?room=${roomName}`;
+            document.getElementById('share-link-input').value = link;
+            showStep('share-step');
+        };
+
+        document.getElementById('btn-host-enter').onclick = async () => {
+            await initMedia();
+            document.getElementById('ready-title').innerText = `Hello, Host ${myName}`;
+            showStep('ready-step');
+        };
+
+        // B. JOIN MEETING (GUEST FLOW)
+        document.getElementById('btn-guest-enter').onclick = async () => {
+            const roomName = document.getElementById('join-room-name').value.trim();
+            const userName = document.getElementById('guest-name-input').value.trim();
+            if(!roomName || !userName) return alert("Please fill all fields");
+
+            myRoom = roomName;
+            myName = userName;
+            isHost = false;
+
+            await initMedia();
+            document.getElementById('ready-title').innerText = `Hello, ${myName}`;
+            showStep('ready-step');
+        };
+
+        // C. MEDIA INITIALIZATION
+        async function initMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('ready-room-video').srcObject = localStream;
+                localVideo.srcObject = localStream;
+                return true;
+            } catch (err) {
+                alert("Could not access Camera/Mic. Please allow permissions.");
+                console.error(err);
+                return false;
+            }
+        }
+
+        // --- 3. SOCKET CONNECTION & JOIN LOGIC ---
+
+        document.getElementById('btn-join-call').onclick = () => {
+            // Initialize Socket
+            socket = io();
+
+            if (isHost) {
+                // HOST: Join immediately and set up admin panel
+                socket.emit('join-room', { roomId: myRoom, userName: myName, isHost: true });
+                enterMeetingUI();
+                document.getElementById('host-panel-btn').classList.remove('hidden');
+                showToast("You are the Host. You control entry.");
+            } else {
+                // GUEST: Request entry
+                document.getElementById('btn-join-call').classList.add('hidden');
+                document.getElementById('waiting-message').classList.remove('hidden');
+                
+                // Emit a specific "request-entry" event
+                socket.emit('request-entry', { roomId: myRoom, userName: myName });
+            }
+
+            setupSocketListeners();
+        };
+
+        function enterMeetingUI() {
+            lobbyOverlay.classList.add('hidden');
+            mainVideoContainer.classList.remove('hidden');
+            controlsBar.classList.remove('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('status-toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        // --- 4. SOCKET & WEBRTC CORE ---
+
+        function setupSocketListeners() {
+            
+            // --- HOST LOGIC: WAITING ROOM ---
+            socket.on('entry-requested', (user) => {
+                if (!isHost) return;
+                addToWaitingList(user);
+                showToast(`${user.userName} wants to join`);
+                // Open panel automatically
+                document.getElementById('waiting-room-panel').style.display = 'flex';
+            });
+
+            // --- GUEST LOGIC: APPROVED/DENIED ---
+            socket.on('entry-approved', () => {
+                enterMeetingUI();
+                // Actually join the WebRTC room now
+                socket.emit('join-room-final', { roomId: myRoom, userName: myName });
+            });
+
+            socket.on('entry-denied', () => {
+                alert("The Host denied your request.");
+                location.reload();
+            });
+
+            // --- STANDARD WEBRTC SIGNALING ---
+            socket.on('user-connected', (userId, userName) => {
+                peerInfo[userId] = userName;
+                showToast(`${userName} joined`);
+                connectToNewUser(userId, localStream);
+            });
+
+            socket.on('user-disconnected', userId => {
+                if (peerConnections[userId]) peerConnections[userId].close();
+                removeVideo(userId);
+                showToast(`${peerInfo[userId] || 'User'} left`);
+            });
+
+            // WebRTC Handshake
+            socket.on('offer', async (offer, userId, userName) => {
+                peerInfo[userId] = userName;
+                const pc = createPeerConnection(userId);
+                await pc.setRemoteDescription(offer);
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                socket.emit('answer', answer, userId);
+            });
+
+            socket.on('answer', async (answer, userId) => {
+                const pc = peerConnections[userId];
+                if(pc) await pc.setRemoteDescription(answer);
+            });
+
+            socket.on('candidate', async (candidate, userId) => {
+                const pc = peerConnections[userId];
+                if(pc) await pc.addIceCandidate(candidate);
+            });
+
+            // --- SCREEN SHARE SIGNALING ---
+            socket.on('screen-share-started', (userId) => {
+                handleRemoteScreenShareStart(userId);
+            });
+
+            socket.on('screen-share-stopped', () => {
+                handleRemoteScreenShareStop();
+            });
+        }
+
+        // --- 5. PEER CONNECTION FUNCTIONS ---
+
+        function createPeerConnection(userId) {
+            const pc = new RTCPeerConnection(iceServers);
+            peerConnections[userId] = pc;
+
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            pc.onicecandidate = event => {
+                if (event.candidate) {
+                    socket.emit('candidate', event.candidate, userId);
+                }
+            };
+
+            pc.ontrack = event => {
+                const stream = event.streams[0];
+                
+                // Distinguish between Screen Share streams and Camera streams
+                // NOTE: Simple logic - if screen sharing mode is active globally, assume new video track is screen? 
+                // Better approach: We handle the visual layout logic separately based on events.
+                
+                addRemoteVideo(userId, stream);
+            };
+
+            return pc;
+        }
+
+        function connectToNewUser(userId, stream) {
+            const pc = createPeerConnection(userId);
+            pc.createOffer().then(offer => {
+                pc.setLocalDescription(offer);
+                socket.emit('offer', offer, userId, myName);
+            });
+        }
+
+        // --- 6. VIDEO ELEMENT MANAGEMENT & LAYOUT SWITCHING ---
+
+        function addRemoteVideo(userId, stream) {
+            // Check if element exists
+            if (document.getElementById(`video-wrapper-${userId}`)) return;
+
+            // Create Video Card
+            const wrapper = document.createElement('div');
+            wrapper.id = `video-wrapper-${userId}`;
+            wrapper.className = 'video-container';
+            
+            const vid = document.createElement('video');
+            vid.id = `video-${userId}`;
+            vid.srcObject = stream;
+            vid.autoplay = true;
+            vid.playsInline = true;
+
+            const label = document.createElement('div');
+            label.className = 'user-label';
+            label.innerText = peerInfo[userId] || "User";
+
+            wrapper.appendChild(vid);
+            wrapper.appendChild(label);
+
+            // Determine where to place it
+            const targetContainer = isScreenSharingActive() ? overlayGrid : videoGridDefault;
+            
+            // If overlay (Top Bar), apply overlay class
+            if (isScreenSharingActive()) {
+                wrapper.classList.add('overlay-video-container');
+            }
+
+            targetContainer.appendChild(wrapper);
+        }
+
+        function removeVideo(userId) {
+            const el = document.getElementById(`video-wrapper-${userId}`);
+            if (el) el.remove();
+        }
+
+        function isScreenSharingActive() {
+            return dominantScreenContainer.style.display === 'block';
+        }
+
+        // --- 7. SCREEN SHARE LOGIC (THE COMPLEX PART) ---
+
+        const btnScreenShare = document.getElementById('screen-share-btn');
+
+        btnScreenShare.onclick = async () => {
+            if (!isScreenSharing) {
+                // START SHARING
+                try {
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                } catch (e) {
+                    console.log("Cancelled share");
+                    return;
+                }
+                
+                const screenTrack = screenStream.getVideoTracks()[0];
+                originalVideoTrack = localStream.getVideoTracks()[0];
+
+                // 1. Replace track in all peer connections (Send screen instead of cam)
+                for (let userId in peerConnections) {
+                    const pc = peerConnections[userId];
+                    const sender = pc.getSenders().find(s => s.track.kind === 'video');
+                    if (sender) sender.replaceTrack(screenTrack);
+                }
+
+                // 2. Notify Server
+                socket.emit('start-screen-share', myRoom);
+
+                // 3. Update Local UI (MIRROR MODE: Show my own screen in big box)
+                enterScreenShareMode(true, screenStream);
+
+                isScreenSharing = true;
+                btnScreenShare.classList.add('active');
+
+                // Handle system stop (clicking "Stop Sharing" on browser chrome)
+                screenTrack.onended = () => {
+                    stopScreenSharing();
+                };
+
+            } else {
+                stopScreenSharing();
+            }
+        };
+
+        function stopScreenSharing() {
+            if(!isScreenSharing) return;
+
+            // 1. Revert Track to Camera
+            const screenTrack = screenStream.getVideoTracks()[0];
+            screenTrack.stop();
+
+            for (let userId in peerConnections) {
+                const pc = peerConnections[userId];
+                const sender = pc.getSenders().find(s => s.track.kind === 'video');
+                if (sender) sender.replaceTrack(originalVideoTrack);
+            }
+
+            // 2. Notify Server
+            socket.emit('stop-screen-share', myRoom);
+
+            // 3. Revert UI
+            exitScreenShareMode();
+
+            isScreenSharing = false;
+            btnScreenShare.classList.remove('active');
+        }
+
+        // --- UI TRANSITIONS FOR SCREEN SHARE ---
+
+        // Called when ANYONE starts sharing (Me or Remote)
+        function enterScreenShareMode(isMe, stream) {
+            // A. Hide Default Grid
+            videoGridDefault.classList.add('hidden');
+            
+            // B. Show Dominant Container
+            dominantScreenContainer.style.display = 'block';
+            dominantVideo.srcObject = stream;
+            
+            document.getElementById('screen-share-info').innerText = isMe ? "You are sharing your screen" : "Presenter is sharing screen";
+
+            // C. Show Top Bar (Overlay)
+            overlayGrid.style.display = 'flex';
+
+            // D. MOVE all small videos to Top Bar
+            // 1. Local Video
+            localVideoContainer.classList.add('overlay-video-container');
+            overlayGrid.appendChild(localVideoContainer);
+
+            // 2. Remote Videos
+            const remoteWrappers = document.querySelectorAll('[id^="video-wrapper-"]');
+            remoteWrappers.forEach(div => {
+                div.classList.add('overlay-video-container');
+                overlayGrid.appendChild(div);
+            });
+        }
+
+        // Called when sharing stops
+        function exitScreenShareMode() {
+            // A. Hide Dominant
+            dominantScreenContainer.style.display = 'none';
+            dominantVideo.srcObject = null;
+
+            // B. Hide Top Bar
+            overlayGrid.style.display = 'none';
+
+            // C. Show Default Grid
+            videoGridDefault.classList.remove('hidden');
+
+            // D. MOVE all videos back to Default Grid
+            // 1. Local
+            localVideoContainer.classList.remove('overlay-video-container');
+            videoGridDefault.appendChild(localVideoContainer);
+
+            // 2. Remotes
+            const remoteWrappers = document.querySelectorAll('[id^="video-wrapper-"]');
+            remoteWrappers.forEach(div => {
+                div.classList.remove('overlay-video-container');
+                videoGridDefault.appendChild(div);
+            });
+        }
+
+        function handleRemoteScreenShareStart(userId) {
+            // NOTE: In a pure mesh, the track replacement handles the stream data. 
+            // We just need to find the stream from the peer connection and put it in the big box.
+            // However, distinguishing tracks in Mesh is tricky without strict track IDs.
+            // SIMPLIFICATION: If a remote user starts sharing, we take their EXISTING video element's stream 
+            // and duplicate it to the dominant view.
+            
+            const remoteVid = document.getElementById(`video-${userId}`);
+            if (remoteVid && remoteVid.srcObject) {
+                enterScreenShareMode(false, remoteVid.srcObject);
+            }
+        }
+
+        function handleRemoteScreenShareStop() {
+            exitScreenShareMode();
+        }
+
+        // --- 8. WAITING ROOM UI LOGIC ---
+
+        function addToWaitingList(user) {
+            const list = document.getElementById('waiting-list-container');
+            document.getElementById('empty-list-msg').style.display = 'none';
+
+            const card = document.createElement('div');
+            card.className = 'waiting-user-card';
+            card.id = `wait-${user.socketId}`;
+            card.innerHTML = `
+                <span class="waiting-user-name">${user.userName}</span>
+                <div class="admin-actions">
+                    <button class="btn-accept" onclick="approveUser('${user.socketId}')"><i class="fas fa-check"></i></button>
+                    <button class="btn-deny" onclick="denyUser('${user.socketId}')"><i class="fas fa-times"></i></button>
+                </div>
+            `;
+            list.appendChild(card);
+        }
+
+        // Exposed globally for onclick
+        window.approveUser = (socketId) => {
+            socket.emit('admin-action', { action: 'approve', targetId: socketId });
+            removeWaitCard(socketId);
+        };
+        window.denyUser = (socketId) => {
+            socket.emit('admin-action', { action: 'deny', targetId: socketId });
+            removeWaitCard(socketId);
+        };
+
+        function removeWaitCard(id) {
+            const el = document.getElementById(`wait-${id}`);
+            if(el) el.remove();
+            if(document.getElementById('waiting-list-container').children.length <= 1) {
+                document.getElementById('empty-list-msg').style.display = 'block';
+            }
+        }
+
+        // --- 9. BUTTON CONTROLS ---
+        document.getElementById('host-panel-btn').onclick = () => {
+            const p = document.getElementById('waiting-room-panel');
+            p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+        };
+
+        document.getElementById('mic-toggle').onclick = (e) => {
+            const enabled = localStream.getAudioTracks()[0].enabled;
+            localStream.getAudioTracks()[0].enabled = !enabled;
+            e.currentTarget.classList.toggle('active');
+            e.currentTarget.innerHTML = !enabled ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone-slash"></i>';
+        };
+
+        document.getElementById('camera-toggle').onclick = (e) => {
+            const enabled = localStream.getVideoTracks()[0].enabled;
+            localStream.getVideoTracks()[0].enabled = !enabled;
+            e.currentTarget.classList.toggle('active');
+            e.currentTarget.innerHTML = !enabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-video-slash"></i>';
+        };
+
+        document.getElementById('leave-btn').onclick = () => {
+            window.location.href = "/";
+        };
+
+        // Ready room previews
+        document.getElementById('pre-mic-btn').onclick = (e) => {
+            const track = localStream.getAudioTracks()[0];
+            track.enabled = !track.enabled;
+            e.currentTarget.classList.toggle('active');
+            e.currentTarget.innerHTML = track.enabled ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone-slash"></i>';
+        };
+        document.getElementById('pre-cam-btn').onclick = (e) => {
+            const track = localStream.getVideoTracks()[0];
+            track.enabled = !track.enabled;
+            e.currentTarget.classList.toggle('active');
+            e.currentTarget.innerHTML = track.enabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-video-slash"></i>';
+        };
+
+    </script>
+
+    </body>
+</html>
