@@ -660,17 +660,20 @@
                 <button class="tab-btn" onclick="switchTab('participants')"><i class="fas fa-users"></i> People <span id="participant-count" style="background: var(--bg-element); padding: 2px 6px; border-radius: 10px; font-size: 0.7rem;">1</span></button>
             </div>
 
-            <div id="chat-container">
-                <div id="chat-messages">
-                    <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 20px;">
-                        Messages are encrypted and ephemeral.
-                    </div>
-                </div>
-                <div class="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Type a message...">
-                    <button onclick="sendMessage()" style="background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;"><i class="fas fa-paper-plane"></i></button>
-                </div>
-            </div>
+           <div id="chat-container">
+    <div id="chat-messages">
+        <div style="text-align: center; color: gray; font-size: 0.8rem; margin-top: 20px;">
+            Secure Encrypted Chat
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+        <button onclick="sendMessage()" id="send-btn">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
 
             <div id="participants-list" class="hidden">
                 </div>
@@ -1006,52 +1009,51 @@ async function initGuestFlow() {
          * 4. WEBRTC CORE (PeerConnections)
          * =================================================
          */
-        function createPeerConnection(userId) {
-            const pc = new RTCPeerConnection(CONFIG);
-            state.peerConnections[userId] = pc;
+       function createPeerConnection(userId) {
+    const pc = new RTCPeerConnection(CONFIG);
+    state.peerConnections[userId] = pc;
 
-            // Add Local Tracks
-            state.localStream.getTracks().forEach(track => pc.addTrack(track, state.localStream));
+    // ... your existing track/stream code ...
 
-            // Handle ICE Candidates
-            pc.onicecandidate = event => {
-                if(event.candidate) {
-                    socket.emit('candidate', event.candidate, userId);
-                }
-            };
+    // --- ADD THIS BLOCK FOR CHAT ---
+    // This listens for when the OTHER person opens a chat line
+    pc.ondatachannel = (event) => {
+        const receiveChannel = event.channel;
+        receiveChannel.onmessage = (e) => {
+            // When a message arrives, show it
+            const msg = e.data;
+            // Try to find the user's name, otherwise say "Guest"
+            const senderName = state.peers[userId] ? state.peers[userId].name : "Guest";
+            addChatMessage(senderName, msg, false); // false = remote message
+        };
+        state.dataChannels[userId] = receiveChannel;
+    };
+    // -------------------------------
 
-            // Handle Incoming Stream
-            pc.ontrack = event => {
-                const stream = event.streams[0];
-                
-                // If this is a screen share track (usually distinct)
-                // Simplified: We assume first video track is cam, if replaced later handled by negotiation
-                addRemoteVideo(userId, stream);
-            };
+    return pc;
+}
 
-            // Setup Data Channel (for Chat)
-            pc.ondatachannel = event => {
-                const receiveChannel = event.channel;
-                receiveChannel.onmessage = (e) => handleDataMessage(e, userId);
-                state.dataChannels[userId] = receiveChannel;
-            };
+       function connectToNewUser(userId) {
+    const pc = createPeerConnection(userId);
+    
+    // --- ADD THIS BLOCK FOR CHAT ---
+    // Create the "chat" channel
+    const dataChannel = pc.createDataChannel("chat");
+    
+    // Setup listener just in case
+    dataChannel.onmessage = (e) => {
+        const senderName = state.peers[userId] ? state.peers[userId].name : "User";
+        addChatMessage(senderName, e.data, false);
+    };
+    
+    state.dataChannels[userId] = dataChannel;
+    // -------------------------------
 
-            return pc;
-        }
-
-        function connectToNewUser(userId) {
-            const pc = createPeerConnection(userId);
-            
-            // Create Data Channel (Caller Side)
-            const dataChannel = pc.createDataChannel("chat");
-            state.dataChannels[userId] = dataChannel;
-            
-            pc.createOffer().then(offer => {
-                pc.setLocalDescription(offer);
-                socket.emit('offer', offer, userId, state.userName);
-            });
-        }
-
+    pc.createOffer().then(offer => {
+        pc.setLocalDescription(offer);
+        socket.emit('offer', offer, userId, state.userName);
+    });
+}
         // WebRTC Signaling Handlers
         socket.on('offer', async (offer, userId, userName) => {
             state.peers[userId] = { name: userName };
@@ -1239,37 +1241,63 @@ async function initGuestFlow() {
             }
         }
 
-        function sendMessage() {
-            const text = els.chatInput.value.trim();
-            if(!text) return;
+        f// Function to handle sending messages
+function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    
+    if(!text) return; // Don't send empty messages
 
-            addChatMessage("You", text, true);
-            
-            // Send via Data Channel to all connected peers
-            for (let id in state.dataChannels) {
-                const channel = state.dataChannels[id];
-                if(channel.readyState === 'open') {
-                    channel.send(text);
-                }
-            }
-            
-            els.chatInput.value = '';
+    // 1. Show message on YOUR screen immediately
+    addChatMessage("You", text, true); // true = local message
+    
+    // 2. Loop through all connected users and send the text
+    for (let userId in state.dataChannels) {
+        const channel = state.dataChannels[userId];
+        // Only send if the line is open
+        if (channel.readyState === 'open') {
+            channel.send(text);
         }
+    }
+    
+    // 3. Clear the input box
+    input.value = '';
+}
 
-        els.chatInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') sendMessage();
-        });
+// Helper to draw the bubble on screen
+function addChatMessage(sender, text, isLocal) {
+    const container = document.getElementById('chat-messages');
+    
+    const bubble = document.createElement('div');
+    // Style differently if it's me (local) or them (remote)
+    bubble.style.padding = "8px 12px";
+    bubble.style.borderRadius = "8px";
+    bubble.style.marginBottom = "8px";
+    bubble.style.maxWidth = "80%";
+    bubble.style.wordWrap = "break-word";
+    
+    if (isLocal) {
+        bubble.style.background = "#4f46e5"; // Purple for me
+        bubble.style.color = "white";
+        bubble.style.alignSelf = "flex-end"; // Align Right
+        bubble.style.marginLeft = "auto";
+    } else {
+        bubble.style.background = "#25282e"; // Dark Grey for them
+        bubble.style.color = "white";
+        bubble.style.alignSelf = "flex-start"; // Align Left
+    }
+    
+    bubble.innerHTML = `<strong style="font-size:0.7rem; display:block; opacity:0.7">${sender}</strong>${text}`;
+    
+    container.appendChild(bubble);
+    // Auto-scroll to bottom
+    container.scrollTop = container.scrollHeight;
+}
 
-        function addChatMessage(sender, text, isLocal) {
-            const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${isLocal ? 'local' : 'remote'}`;
-            bubble.innerHTML = `
-                <div class="chat-meta">${sender} • ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-                ${text}
-            `;
-            els.chatContainer.appendChild(bubble);
-            els.chatContainer.scrollTop = els.chatContainer.scrollHeight;
-        }
+// Allow pressing "Enter" key to send
+document.getElementById('chat-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
 
         /* * =================================================
          * 8. RECORDING LOGIC (MediaRecorder)
