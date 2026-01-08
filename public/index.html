@@ -301,112 +301,124 @@
         }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        /* --- Video Grid --- */
-        #video-grid {
-            flex-grow: 1;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            align-content: center;
-            gap: 20px;
-            padding: 20px;
-            overflow-y: auto;
-            width: 100%;
-        }
+       /* =========================================================
+   1. GRID VIEW (Normal Mode - Centered)
+   ========================================================= */
+#video-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Keeps cameras in center */
+    align-items: center;
+    align-content: center;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    gap: 15px;
+    padding: 20px;
+    transition: all 0.3s ease; /* Smooth animation */
+}
 
-        /* --- Video Card --- */
-        .video-card {
-            position: relative;
-            background: var(--bg-element);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-            /* Desktop Defaults */
-            width: 45%;
-            max-width: 600px;
-            aspect-ratio: 16/9;
-            min-width: 300px;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        
-        /* Speaker Highlight */
-        .video-card.speaking { border-color: var(--success); }
+/* Video Card (Normal Size) */
+.video-card {
+    position: relative;
+    background: #25282e;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 45%; 
+    max-width: 600px;
+    aspect-ratio: 16/9;
+    min-width: 300px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
 
-        .video-card video {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            background: #000;
-        }
+/* =========================================================
+   2. SCREEN SHARE MODE (WhatsApp Style)
+   ========================================================= */
 
-        /* Avatar Placeholder (No Camera) */
-        .no-cam-placeholder {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: var(--bg-element);
-            z-index: 10;
-        }
-        .avatar-circle {
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            font-size: 2rem;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
+/* A. The Screen Share Area (Massive & Black) */
+#dominant-view {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #000; /* Pure Black like WhatsApp */
+    z-index: 5; /* Behind the controls, but above background */
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
-        .user-name-tag {
-            position: absolute;
-            bottom: 15px; left: 15px;
-            background: rgba(0, 0, 0, 0.75);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: white;
-            z-index: 20;
-            backdrop-filter: blur(4px);
-            display: flex; align-items: center; gap: 8px;
-        }
+#dominant-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ensures entire screen is visible */
+    max-height: 100vh;
+}
 
-        /* --- Dominant View (Screen Share) --- */
-        #dominant-view {
-            width: 100%;
-            height: 100%;
-            background: #111;
-            display: none;
-            position: relative;
-            padding: 10px;
-        }
-        #dominant-video {
-            width: 100%; height: 100%;
-            object-fit: contain;
-            border-radius: var(--radius-md);
-        }
-        .screenshare-info {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--primary); color: white;
-            padding: 8px 16px; border-radius: 20px; font-weight: 500;
-            box-shadow: var(--shadow-lg); z-index: 50;
-        }
+/* B. The "Top Strip" (Cameras move here when sharing) */
+#video-grid.top-strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 140px; /* Fixed height strip */
+    justify-content: flex-start; /* Align left */
+    flex-wrap: nowrap; /* Single row */
+    overflow-x: auto; /* Scrollable sideways */
+    padding: 10px;
+    background: rgba(0,0,0,0.6); /* Semi-transparent background */
+    z-index: 20; /* Sit ON TOP of the screen share */
+    align-content: center;
+}
 
+/* Shrink video cards when they are in the top strip */
+#video-grid.top-strip .video-card {
+    width: 180px;
+    min-width: 180px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+/* Hide the name tag in top strip to save space (Optional) */
+#video-grid.top-strip .user-name-tag {
+    font-size: 0.7rem;
+    padding: 2px 5px;
+}
+
+/* =========================================================
+   3. BOTTOM CONTROLS (Responsive)
+   ========================================================= */
+#controls-bar {
+    height: 80px;
+    background-color: #181b21;
+    display: flex;
+    justify-content: center; /* Center the buttons */
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    z-index: 100;
+    border-top: 1px solid #333;
+    padding: 0 10px;
+    /* Ensure it stays at bottom even if content changes */
+    position: relative; 
+}
+
+/* Mobile adjustments for controls */
+@media (max-width: 768px) {
+    #controls-bar {
+        overflow-x: auto; /* Scroll if too many buttons */
+        justify-content: space-evenly;
+        padding-bottom: 10px; /* Safety padding for iPhone home bar */
+    }
+    .control-btn {
+        width: 45px; height: 45px; flex-shrink: 0;
+    }
+}
         /* * ======================================================================================
          * SECTION 4: CONTROLS BAR (Footer)
          * ======================================================================================
          */
-        #controls-bar {
-            height: var(--footer-height);
-            background-color: var(--bg-panel);
-            border-top: 1px solid var(--bg-hover);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            z-index: 100;
-        }
+        
 
         .controls-left { width: 200px; display: flex; align-items: center; }
         .controls-right { width: 200px; display: flex; justify-content: flex-end; }
@@ -761,40 +773,43 @@
 
     <div id="app-container" class="hidden">
         
-        <div id="main-stage">
-            
-            <div class="room-info-badge">
-                <div class="room-pill">
-                    <i class="fas fa-shield-alt" style="color: var(--success);"></i>
-                    <span id="display-room-id">...</span>
-                    <button class="copy-btn" onclick="copyRoomLink()" title="Copy Link"><i class="fas fa-copy"></i></button>
-                </div>
-                <div id="rec-status" class="rec-indicator hidden">REC</div>
-            </div>
-
-            <div id="dominant-view">
-                <div class="screenshare-info">
-                    <i class="fas fa-desktop"></i> <span id="sharing-user-name">User</span> is sharing screen
-                </div>
-                <video id="dominant-video" autoplay playsinline></video>
-            </div>
-
-            <div id="video-grid">
-                <div class="video-card" id="local-card">
-                    <video id="local-video" autoplay muted playsinline></video>
-                    <div class="no-cam-placeholder hidden" id="local-placeholder">
-                        <div class="avatar-circle">You</div>
-                        <div style="color: var(--text-muted);">Camera Off</div>
-                    </div>
-                    <div class="user-name-tag">
-                        <i class="fas fa-microphone-slash" id="local-mute-icon" style="color: var(--danger); display: none;"></i>
-                        You
-                    </div>
-                </div>
-                </div>
-
-            <div id="reaction-area" style="position: absolute; bottom: 100px; left: 0; width: 100%; height: 200px; pointer-events: none; overflow: hidden;"></div>
+      <div id="main-stage">
+    
+    <div class="room-info-badge">
+        <div class="room-pill">
+            <i class="fas fa-shield-alt" style="color: var(--success);"></i>
+            <span id="display-room-id">...</span>
+            <button class="copy-btn" onclick="copyRoomLink()" title="Copy Link"><i class="fas fa-copy"></i></button>
         </div>
+        <div id="rec-status" class="rec-indicator hidden">REC</div>
+    </div>
+
+    <div id="dominant-view">
+        <div class="screenshare-info" style="position: absolute; top: 20px; z-index: 60; background: rgba(0,0,0,0.6); color: white; padding: 8px 15px; border-radius: 20px;">
+            <i class="fas fa-desktop"></i> <span id="sharing-user-name">User</span> is sharing screen
+        </div>
+        <video id="dominant-video" autoplay playsinline></video>
+    </div>
+
+    <div id="video-grid">
+        <div class="video-card" id="local-card">
+            <video id="local-video" autoplay muted playsinline></video>
+            
+            <div class="no-cam-placeholder hidden" id="local-placeholder">
+                <div class="avatar-circle">You</div>
+                <div style="color: var(--text-muted);">Camera Off</div>
+            </div>
+            
+            <div class="user-name-tag">
+                <i class="fas fa-microphone-slash" id="local-mute-icon" style="color: var(--danger); display: none;"></i>
+                You
+            </div>
+        </div>
+        </div>
+
+    <div id="reaction-area" style="position: absolute; bottom: 100px; left: 0; width: 100%; height: 200px; pointer-events: none; overflow: hidden; z-index: 90;"></div>
+
+</div>
 
         <div id="sidebar-panel">
             <div class="sidebar-header">
@@ -1355,17 +1370,36 @@
         });
         socket.on('screen-share-stopped', () => updateScreenShareUI(false));
 
-        function updateScreenShareUI(active, stream, name) {
-            if(active) {
-                els.videoGrid.classList.add('hidden');
-                els.dominantView.style.display = 'block';
-                document.getElementById('dominant-video').srcObject = stream;
-                document.getElementById('sharing-user-name').innerText = name;
-            } else {
-                els.videoGrid.classList.remove('hidden');
-                els.dominantView.style.display = 'none';
-            }
-        }
+   function updateScreenShareUI(isActive, stream = null, name = "") {
+    const grid = document.getElementById('video-grid');
+    const dominant = document.getElementById('dominant-view');
+    const domVideo = document.getElementById('dominant-video');
+    const nameLabel = document.getElementById('sharing-user-name');
+
+    if (isActive) {
+        // 1. ENABLE SCREEN SHARE MODE
+        
+        // Show the Big Black Screen
+        dominant.style.display = 'flex';
+        domVideo.srcObject = stream;
+        
+        // Update the badge text
+        if(nameLabel) nameLabel.innerText = name;
+
+        // MOVE CAMERAS TO TOP
+        grid.classList.add('top-strip'); // This triggers the CSS to shrink them
+        
+    } else {
+        // 2. DISABLE SCREEN SHARE MODE (Back to Normal)
+        
+        // Hide Big Screen
+        dominant.style.display = 'none';
+        domVideo.srcObject = null;
+
+        // MOVE CAMERAS BACK TO CENTER
+        grid.classList.remove('top-strip'); 
+    }
+}
 
         // --- Refresh Protection ---
         function handleRefreshWarning(e) { e.preventDefault(); e.returnValue = ''; return ""; }
