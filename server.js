@@ -5,8 +5,12 @@ const io = require('socket.io')(http);
 const path = require('path');
 
 // Serve your HTML file
+// 1. Tell Express to serve everything in 'public' as static files (css, js, images)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 2. Point the main route specifically to public/index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Store room details: { "MEET-123": { host: "socketId", users: [] } }
