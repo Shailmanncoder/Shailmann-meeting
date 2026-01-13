@@ -453,7 +453,17 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+        // ROBUST CONFIG FROM FIRST CODE BLOCK
+        const CONFIG = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun.nextcloud.com:443' }
+            ]
+        };
+
         const state = {
             localStream: null, screenStream: null, mediaRecorder: null, chunks: [],
             isHost: false, isScreenSharing: false, isRecording: false,
@@ -508,7 +518,7 @@
                 const stream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
                 state.localStream = stream; els.previewVideo.srcObject = stream;
                 runVisualizer(stream);
-                els.status.innerText = "Ready to Join"; els.status.style.color = "green";
+                els.status.innerText = "Ready to Join"; els.status.style.color = "var(--success)";
                 showLobby(3); // Go to Preview
             } catch(e) { alert("Camera Permission Denied"); }
         }
@@ -531,27 +541,16 @@
             btn.disabled = true;
 
             if (state.isHost) {
-                // HOST: Create Room immediately
+                // HOST: Create Room immediately (Socket Logic from First Block)
                 console.log("Host joining...");
-                socket.emit('join-room', { roomId: state.roomId, userName: state.userName });
+                socket.emit('join-room', { roomId: state.roomId, userName: state.userName, isHost: true });
                 addToast("Meeting Created", "success");
                 enterApp();
             } else {
-                // GUEST: Check if room exists first
-                console.log("Guest checking room...");
-                socket.emit('check-room', state.roomId, (exists) => {
-                    if (exists) {
-                        // Room Found: Knock
-                        btn.innerText = "Waiting for Host...";
-                        btn.style.background = "#ccc";
-                        socket.emit('request-entry', { roomId: state.roomId, userName: state.userName });
-                    } else {
-                        // Room Not Found: Error
-                        alert("❌ Room ID not found! Please check the ID.");
-                        btn.disabled = false;
-                        btn.innerText = "Join Now";
-                    }
-                });
+                // GUEST: Request Entry (Gatekeeper Logic)
+                btn.innerText = "Knocking...";
+                btn.style.background = "#ccc";
+                socket.emit('request-entry', { roomId: state.roomId, userName: state.userName });
             }
         }
 
@@ -562,15 +561,14 @@
             window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue=''; });
         }
 
-        // --- 3. SOCKET EVENTS ---
+        // --- 3. SOCKET EVENTS (GATEKEEPER & PEERS) ---
         socket.on('entry-requested', (data) => {
             if(!state.isHost) return;
             const m = document.getElementById('waiting-modal');
             m.style.display = 'flex'; // Show modal
             document.getElementById('knocker-name').innerText = data.userName;
             
-            // Note: We use one-time event listeners or replacement to prevent duplicate firings in a real app
-            // Here we just reassign onclick
+            // Assign onclicks dynamically
             document.getElementById('allow-btn').onclick = () => {
                 socket.emit('admin-action', {action:'approve', targetId:data.socketId});
                 m.style.display = 'none';
@@ -594,36 +592,52 @@
         socket.on('user-disconnected', (id) => { 
             if(state.peers[id]) { 
                 addToast(`${state.peers[id].name} left`, "warning"); 
-                state.peers[id].pc.close(); delete state.peers[id]; 
+                if(state.peers[id].pc) state.peers[id].pc.close(); 
+                delete state.peers[id]; 
                 const el = document.getElementById(`wrapper-${id}`); if(el) el.remove();
             } 
         });
 
-        // --- 4. WEBRTC CORE ---
+        // --- 4. WEBRTC CORE (WITH DATA CHANNELS) ---
         function createPC(id, name) {
             const pc = new RTCPeerConnection(CONFIG);
             state.peers[id] = { name: name, pc: pc, dc: null };
+            
+            // Add Tracks
             state.localStream.getTracks().forEach(t => pc.addTrack(t, state.localStream));
+            
+            // Handle Remote Stream
             pc.ontrack = (e) => addRemoteVideo(id, e.streams[0]);
+            
+            // Handle ICE
             pc.onicecandidate = (e) => { if(e.candidate) socket.emit('candidate', e.candidate, id); };
+            
+            // Handle Incoming Data Channel (for remote reactions/chat)
             pc.ondatachannel = (e) => setupDC(id, e.channel);
+            
             return pc;
         }
+
         function setupDC(id, ch) {
             ch.onmessage = (e) => {
-                if(e.data.startsWith("REACT:")) showFloatingReaction(e.data.split(":")[1]);
-                else { addChatMsg(state.peers[id].name, e.data, false); notifyChat(); }
+                const msg = e.data;
+                if(msg.startsWith("REACT:")) showFloatingReaction(msg.split(":")[1]);
+                else { addChatMsg(state.peers[id].name, msg, false); notifyChat(); }
             };
             state.peers[id].dc = ch;
         }
+
         function connectToUser(id, name) {
-            const pc = createPC(id, name); const dc = pc.createDataChannel("chat"); setupDC(id, dc);
+            const pc = createPC(id, name); 
+            // Create Data Channel for Chat/Reactions
+            const dc = pc.createDataChannel("chat"); 
+            setupDC(id, dc);
+            
             pc.createOffer().then(o => { pc.setLocalDescription(o); socket.emit('offer', o, id, state.userName); });
         }
+
         socket.on('offer', async (o, id, name) => {
-            const pcObject = createPC(id, name);
-            // Handle if createPC returns wrapper or direct PC
-            const pc = pcObject.pc || pcObject; 
+            const pc = createPC(id, name);
             await pc.setRemoteDescription(o);
             const a = await pc.createAnswer(); await pc.setLocalDescription(a);
             socket.emit('answer', a, id);
@@ -688,23 +702,41 @@
             }
         }
 
-        // --- 7. CONTROLS ---
+        // --- 7. CONTROLS (RECORDING FROM FIRST BLOCK ADDED) ---
         function toggleRecord() {
             if(state.isRecording) {
+                // Stop Recording
                 state.mediaRecorder.stop();
                 document.getElementById('btn-rec').classList.remove('active');
                 document.getElementById('rec-status').classList.add('hidden');
                 state.isRecording = false;
             } else {
+                // Start Recording (Logic from First Block)
                 const streamToRecord = state.isScreenSharing ? state.screenStream : state.localStream;
                 state.chunks = [];
-                state.mediaRecorder = new MediaRecorder(streamToRecord, {mimeType:'video/webm;codecs=vp9'});
+                // Check codec support
+                let options = { mimeType: 'video/webm;codecs=vp9' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                     options = { mimeType: 'video/webm' };
+                }
+                
+                state.mediaRecorder = new MediaRecorder(streamToRecord, options);
+                
                 state.mediaRecorder.ondataavailable = e => { if(e.data.size > 0) state.chunks.push(e.data); };
+                
                 state.mediaRecorder.onstop = () => {
-                    const blob = new Blob(state.chunks, {type:'video/webm'});
+                    const blob = new Blob(state.chunks, {type: 'video/webm'});
                     const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a'); a.href = url; a.download = `rec-${Date.now()}.webm`; a.click();
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `meeting-rec-${Date.now()}.webm`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    addToast("Recording Saved!", "success");
                 };
+                
                 state.mediaRecorder.start();
                 document.getElementById('btn-rec').classList.add('active');
                 document.getElementById('rec-status').classList.remove('hidden');
@@ -758,14 +790,15 @@
         function addChatMsg(s, t, l) {
             const d = document.createElement('div'); d.className = `chat-bubble ${l?'local':'remote'}`;
             d.innerText = t;
-            document.getElementById('chat-feed').appendChild(d);
-            document.getElementById('chat-feed').scrollTop = 10000;
+            const feed = document.getElementById('chat-feed');
+            feed.appendChild(d);
+            feed.scrollTop = feed.scrollHeight;
         }
 
         function toggleReactionMenu() { document.getElementById('reaction-menu').classList.toggle('open'); }
         function sendReaction(emoji) {
             showFloatingReaction(emoji); // Show locally
-            // Send to peers
+            // Send to peers via Data Channel (Logic from First Block)
             Object.values(state.peers).forEach(p => { if(p.dc?.readyState==='open') p.dc.send(`REACT:${emoji}`); });
             toggleReactionMenu(); // Close menu
         }

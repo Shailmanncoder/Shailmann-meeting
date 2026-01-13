@@ -1,80 +1,61 @@
 const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 const path = require('path');
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
-// Serve the HTML file from the 'public' folder
+// Serve the static HTML file
 app.use(express.static(path.join(__dirname, 'public')));
 
-// STATE MANAGEMENT
-// In a real enterprise app, use a database (Redis/MongoDB).
-// For this standalone version, we use memory.
-const rooms = {}; // { roomId: { hostId: 'socket-id', users: [] } }
+// If user goes to "/", send the index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
+// --- SOCKET.IO SIGNALING LOGIC ---
 io.on('connection', (socket) => {
-    console.log('New connection:', socket.id);
+    console.log('A user connected:', socket.id);
 
-    // --- 1. HOSTING LOGIC ---
-    socket.on('join-room', ({ roomId, userName }) => {
-        // Create the room if it doesn't exist
-        if (!rooms[roomId]) {
-            rooms[roomId] = { hostId: socket.id, users: [] };
-            console.log(`Room Created: ${roomId} by Host: ${userName}`);
-        }
-        
-        // Host joins immediately
+    // 1. HOST JOINING
+    socket.on('join-room', (data) => {
+        const { roomId, userName, isHost } = data;
         socket.join(roomId);
-        rooms[roomId].users.push(socket.id);
         
-        // Notify others
+        // Notify others in room that a user connected
         socket.to(roomId).emit('user-connected', socket.id, userName);
+        
+        // Tag this socket as host for security (optional enhancement)
+        socket.isHost = isHost;
     });
 
-    // --- 2. GUEST / WAITING ROOM LOGIC ---
-    
-    // Check if room exists before letting guest knock
-    socket.on('check-room', (roomId, callback) => {
-        const exists = !!rooms[roomId];
-        callback(exists);
+    // 2. GUEST REQUESTING ENTRY
+    socket.on('request-entry', (data) => {
+        const { roomId, userName } = data;
+        // Broadcast this request to everyone in the room (The Host will pick it up)
+        socket.to(roomId).emit('entry-requested', { 
+            socketId: socket.id, 
+            userName: userName 
+        });
     });
 
-    // Guest "Knocks" on the door
-    socket.on('request-entry', ({ roomId, userName }) => {
-        const room = rooms[roomId];
-        if (room && room.hostId) {
-            // Tell the Host (and only the Host) that someone is waiting
-            io.to(room.hostId).emit('entry-requested', { 
-                socketId: socket.id, 
-                userName: userName 
-            });
-        }
-    });
-
-    // Host Approves or Denies
-    socket.on('admin-action', ({ action, targetId }) => {
+    // 3. ADMIN (HOST) ACTIONS
+    socket.on('admin-action', (data) => {
+        const { action, targetId } = data;
         if (action === 'approve') {
             io.to(targetId).emit('entry-approved');
-        } else {
+        } else if (action === 'deny') {
             io.to(targetId).emit('entry-denied');
         }
     });
 
-    // Guest actually joins after approval
-    socket.on('join-room-final', ({ roomId, userName }) => {
+    // 4. GUEST FINAL JOIN (After Approval)
+    socket.on('join-room-final', (data) => {
+        const { roomId, userName } = data;
         socket.join(roomId);
-        if (rooms[roomId]) rooms[roomId].users.push(socket.id);
-        
-        // Notify everyone else in the room
         socket.to(roomId).emit('user-connected', socket.id, userName);
     });
 
-    // --- 3. WEBRTC SIGNALING (The Video Connection) ---
-    // These events simply relay data between Peer A and Peer B
-    
+    // 5. WEBRTC SIGNALING (Offer, Answer, ICE Candidates)
     socket.on('offer', (offer, targetId, userName) => {
         io.to(targetId).emit('offer', offer, socket.id, userName);
     });
@@ -87,7 +68,7 @@ io.on('connection', (socket) => {
         io.to(targetId).emit('candidate', candidate, socket.id);
     });
 
-    // --- 4. SCREEN SHARING NOTIFICATIONS ---
+    // 6. SCREEN SHARE STATE
     socket.on('start-screen-share', (roomId) => {
         socket.to(roomId).emit('screen-share-started', socket.id);
     });
@@ -96,33 +77,15 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('screen-share-stopped');
     });
 
-    // --- 5. DISCONNECT CLEANUP ---
+    // 7. DISCONNECT
     socket.on('disconnect', () => {
-        // Remove user from all rooms they were in
-        for (const roomId in rooms) {
-            const room = rooms[roomId];
-            if (room.users.includes(socket.id)) {
-                // Remove from user list
-                room.users = room.users.filter(id => id !== socket.id);
-                
-                // Notify others they left
-                socket.to(roomId).emit('user-disconnected', socket.id);
-                
-                // If Host left, maybe close room? (Optional)
-                if (socket.id === room.hostId) {
-                    // For now, we just keep the room open or logic could be added to close it
-                    console.log(`Host left room ${roomId}`);
-                }
-            }
-            // Cleanup empty rooms
-            if (room.users.length === 0) {
-                delete rooms[roomId];
-            }
-        }
+        // Notify everyone this user left so they can remove the video
+        io.emit('user-disconnected', socket.id);
     });
 });
 
+// Start Server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`\n🚀 Shailmann Connect Server running on http://localhost:${PORT}`);
+http.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
