@@ -489,12 +489,11 @@ const els = {
 };
 
 // =========================================================
-// 2. AUDIO VISUALIZER (Green Bars)
+// 2. AUDIO VISUALIZER
 // =========================================================
 const viz = document.getElementById('sound-viz');
-// Create 30 bars dynamically
 if(viz) {
-    viz.innerHTML = ''; // Clear existing
+    viz.innerHTML = ''; 
     for(let i=0; i<30; i++) { 
         const b = document.createElement('div'); 
         b.className='meter-bar'; 
@@ -509,16 +508,11 @@ function runVisualizer(stream) {
     const anl = ctx.createAnalyser(); 
     anl.fftSize=64; 
     src.connect(anl);
-    
     const buf = new Uint8Array(anl.frequencyBinCount); 
     const bars = document.querySelectorAll('.meter-bar');
-    
     function loop() {
         anl.getByteFrequencyData(buf);
-        bars.forEach((b,i) => { 
-            // Calculate height based on frequency data
-            b.style.height = `${Math.max(5, (buf[i]||0)/255*100)}%`; 
-        });
+        bars.forEach((b,i) => { b.style.height = `${Math.max(5, (buf[i]||0)/255*100)}%`; });
         requestAnimationFrame(loop);
     }
     loop();
@@ -532,153 +526,88 @@ function showLobby(step) {
     document.getElementById(`step-${step}`).classList.remove('hidden');
 }
 
-// Host Flow: Generate Random ID
 function setupHost() {
     state.isHost = true;
     document.getElementById('form-title').innerText = "Host Meeting";
     const randomId = "MEET-" + Math.floor(Math.random()*10000);
-    const roomInput = document.getElementById('room-id');
-    roomInput.value = randomId;
-    roomInput.readOnly = true; 
+    document.getElementById('room-id').value = randomId;
+    document.getElementById('room-id').readOnly = true; 
     showLobby(2);
 }
 
-// Guest Flow: Manual ID Entry
 function setupGuest() {
     state.isHost = false;
     document.getElementById('form-title').innerText = "Join Meeting";
-    const roomInput = document.getElementById('room-id');
-    roomInput.value = ""; 
-    roomInput.readOnly = false; 
+    document.getElementById('room-id').value = ""; 
+    document.getElementById('room-id').readOnly = false; 
     showLobby(2);
 }
 
-// Check Camera/Mic and Show Preview
 async function goToPreview() {
     state.userName = document.getElementById('username').value.trim() || "Guest";
     state.roomId = document.getElementById('room-id').value.trim().toUpperCase();
-
     if (!state.roomId) return alert("Please enter a Room ID");
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
         state.localStream = stream; 
         els.previewVideo.srcObject = stream;
-        runVisualizer(stream); // Start green bars
-        
+        runVisualizer(stream);
         els.status.innerText = "Ready to Join"; 
         els.status.style.color = "green";
         showLobby(3); 
-    } catch(e) { 
-        console.error(e);
-        alert("Camera Permission Denied. Please allow access in browser settings."); 
-    }
+    } catch(e) { alert("Camera Permission Denied"); }
 }
 
 // =========================================================
-// 4. JOINING LOGIC (The Critical Part)
+// 4. JOINING LOGIC (UPDATED: DIRECT ENTRY)
 // =========================================================
 function finalJoin() {
     const btn = document.getElementById('join-now-btn');
-    
-    // Safety check if socket isn't ready
-    if (!socket.connected) {
-        alert("Connecting to server... Please wait a moment.");
-        return;
-    }
+    if (!socket.connected) return alert("Connecting to server...");
 
     btn.disabled = true;
 
     if (state.isHost) {
-        // --- HOST LOGIC ---
-        // Create the room immediately
+        // HOST: Create and Enter
         socket.emit('join-room', { roomId: state.roomId, userName: state.userName });
         addToast("Meeting Created", "success");
         enterApp();
     } else {
-        // --- GUEST LOGIC ---
+        // GUEST: Check and Enter Immediately
         btn.innerText = "Checking...";
-        
-        // 1. Check if room exists
         socket.emit('check-room', state.roomId, (exists) => {
             if (exists) {
-                // 2. Room found -> Knock on door
-                btn.innerText = "Waiting for Host...";
-                btn.style.background = "#64748b"; // Grey out
-                socket.emit('request-entry', { roomId: state.roomId, userName: state.userName });
+                // Room exists -> JOIN DIRECTLY (No Knocking)
+                addToast("Joining Meeting...", "success");
+                enterApp();
+                socket.emit('join-room-final', { roomId: state.roomId, userName: state.userName }); 
             } else {
-                // 3. Room not found
-                alert("❌ Room ID not found! Ask the host for the correct ID.");
+                alert("❌ Room ID not found!");
                 btn.disabled = false;
                 btn.innerText = "Join Now";
-                btn.style.background = "var(--primary)";
             }
         });
     }
 }
 
 function enterApp() {
-    // Switch from Lobby to Main App
     els.localVideo.srcObject = state.localStream;
     els.lobby.classList.add('hidden'); 
     els.app.classList.remove('hidden');
     document.getElementById('room-display').innerText = `ID: ${state.roomId}`;
-    
-    // Prevent accidental tab closing
     window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue=''; });
 }
 
 // =========================================================
-// 5. SOCKET EVENTS (Handling Server Signals)
+// 5. SOCKET EVENTS
 // =========================================================
 
-// Host: Someone is knocking
-socket.on('entry-requested', (data) => {
-    if(!state.isHost) return;
-    
-    const m = document.getElementById('waiting-modal');
-    m.style.display = 'flex'; // Show Knock Popup
-    document.getElementById('knocker-name').innerText = data.userName;
-    
-    // Handle Allow
-    const allowBtn = document.getElementById('allow-btn');
-    allowBtn.onclick = () => {
-        socket.emit('admin-action', {action:'approve', targetId:data.socketId});
-        m.style.display = 'none';
-        // Reset onclick to avoid stacking listeners
-        allowBtn.onclick = null; 
-    };
-    
-    // Handle Deny
-    const denyBtn = document.getElementById('deny-btn');
-    denyBtn.onclick = () => {
-        socket.emit('admin-action', {action:'deny', targetId:data.socketId});
-        m.style.display = 'none';
-        denyBtn.onclick = null;
-    };
-});
-
-// Guest: Host let me in!
-socket.on('entry-approved', () => { 
-    addToast("Access Granted", "success"); 
-    enterApp(); 
-    // Officially join the room for video
-    socket.emit('join-room-final', { roomId: state.roomId, userName: state.userName }); 
-});
-
-// Guest: Host said no
-socket.on('entry-denied', () => { 
-    alert("Host Denied Entry"); 
-    location.reload(); 
-});
-
-// Everyone: A new user connected
 socket.on('user-connected', (id, name) => { 
     addToast(`${name} joined`, "info"); 
     connectToUser(id, name); 
 });
 
-// Everyone: A user left
 socket.on('user-disconnected', (id) => { 
     if(state.peers[id]) { 
         addToast(`${state.peers[id].name} left`, "warning"); 
@@ -690,37 +619,22 @@ socket.on('user-disconnected', (id) => {
 });
 
 // =========================================================
-// 6. WEBRTC CORE (Video & Audio)
+// 6. WEBRTC CORE
 // =========================================================
 function createPC(id, name) {
     const pc = new RTCPeerConnection(CONFIG);
     state.peers[id] = { name: name, pc: pc, dc: null };
-    
-    // Add local tracks (Video/Audio) to the connection
     state.localStream.getTracks().forEach(t => pc.addTrack(t, state.localStream));
-    
-    // Handle remote tracks (When we receive video)
     pc.ontrack = (e) => addRemoteVideo(id, e.streams[0]);
-    
-    // Handle ICE Candidates (Network path finding)
-    pc.onicecandidate = (e) => { 
-        if(e.candidate) socket.emit('candidate', e.candidate, id); 
-    };
-    
-    // Handle Chat Data Channel
+    pc.onicecandidate = (e) => { if(e.candidate) socket.emit('candidate', e.candidate, id); };
     pc.ondatachannel = (e) => setupDC(id, e.channel);
-    
     return pc;
 }
 
 function setupDC(id, ch) {
     ch.onmessage = (e) => {
-        if(e.data.startsWith("REACT:")) {
-            showFloatingReaction(e.data.split(":")[1]);
-        } else { 
-            addChatMsg(state.peers[id].name, e.data, false); 
-            notifyChat(); 
-        }
+        if(e.data.startsWith("REACT:")) showFloatingReaction(e.data.split(":")[1]);
+        else { addChatMsg(state.peers[id].name, e.data, false); notifyChat(); }
     };
     state.peers[id].dc = ch;
 }
@@ -729,14 +643,12 @@ function connectToUser(id, name) {
     const pc = createPC(id, name); 
     const dc = pc.createDataChannel("chat"); 
     setupDC(id, dc);
-    
     pc.createOffer().then(o => { 
         pc.setLocalDescription(o); 
         socket.emit('offer', o, id, state.userName); 
     });
 }
 
-// Signaling Handlers
 socket.on('offer', async (o, id, name) => {
     const pcObject = createPC(id, name);
     const pc = pcObject.pc || pcObject; 
@@ -745,22 +657,15 @@ socket.on('offer', async (o, id, name) => {
     await pc.setLocalDescription(a);
     socket.emit('answer', a, id);
 });
-socket.on('answer', (a, id) => { 
-    if(state.peers[id]) state.peers[id].pc.setRemoteDescription(a); 
-});
-socket.on('candidate', (c, id) => { 
-    if(state.peers[id]) state.peers[id].pc.addIceCandidate(c); 
-});
+socket.on('answer', (a, id) => { if(state.peers[id]) state.peers[id].pc.setRemoteDescription(a); });
+socket.on('candidate', (c, id) => { if(state.peers[id]) state.peers[id].pc.addIceCandidate(c); });
 
 // =========================================================
-// 7. UI HELPERS & FEATURES
+// 7. UI HELPERS
 // =========================================================
 function addRemoteVideo(id, stream) {
     if(document.getElementById(`wrapper-${id}`)) return;
-    
-    const div = document.createElement('div'); 
-    div.className = 'video-card'; 
-    div.id = `wrapper-${id}`;
+    const div = document.createElement('div'); div.className = 'video-card'; div.id = `wrapper-${id}`;
     div.innerHTML = `<video id="vid-${id}" autoplay playsinline></video><div class="name-tag">${state.peers[id].name}</div>`;
     els.grid.appendChild(div);
     document.getElementById(`vid-${id}`).srcObject = stream;
@@ -773,33 +678,25 @@ async function toggleScreenShare() {
         const stream = await navigator.mediaDevices.getDisplayMedia({video:true});
         state.screenStream = stream;
         const track = stream.getVideoTracks()[0];
-        
-        // Replace camera video track with screen track for all peers
         for(let id in state.peers) {
             const sender = state.peers[id].pc.getSenders().find(s => s.track.kind === 'video');
             if(sender) sender.replaceTrack(track);
         }
-        
         socket.emit('start-screen-share', state.roomId);
         updateScreenUI(true, stream, "You");
         document.getElementById('btn-screen').classList.add('active');
         state.isScreenSharing = true;
-        
-        // If user clicks "Stop Sharing" on browser UI
         track.onended = stopShare;
-    } catch(e) { console.log("Screen share cancelled"); }
+    } catch(e) {}
 }
 
 function stopShare() {
     if(state.screenStream) state.screenStream.getTracks().forEach(t => t.stop());
-    
     const track = state.localStream.getVideoTracks()[0];
-    // Revert back to camera
     for(let id in state.peers) {
         const sender = state.peers[id].pc.getSenders().find(s => s.track.kind === 'video');
         if(sender) sender.replaceTrack(track);
     }
-    
     socket.emit('stop-screen-share', state.roomId);
     updateScreenUI(false);
     document.getElementById('btn-screen').classList.remove('active');
@@ -835,17 +732,12 @@ function toggleRecord() {
         const streamToRecord = state.isScreenSharing ? state.screenStream : state.localStream;
         state.chunks = [];
         state.mediaRecorder = new MediaRecorder(streamToRecord, {mimeType:'video/webm;codecs=vp9'});
-        
         state.mediaRecorder.ondataavailable = e => { if(e.data.size > 0) state.chunks.push(e.data); };
         state.mediaRecorder.onstop = () => {
             const blob = new Blob(state.chunks, {type:'video/webm'});
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); 
-            a.href = url; 
-            a.download = `rec-${Date.now()}.webm`; 
-            a.click();
+            const a = document.createElement('a'); a.href = url; a.download = `rec-${Date.now()}.webm`; a.click();
         };
-        
         state.mediaRecorder.start();
         document.getElementById('btn-rec').classList.add('active');
         document.getElementById('rec-status').classList.remove('hidden');
@@ -854,42 +746,25 @@ function toggleRecord() {
     }
 }
 
-// --- Controls (Mute/Video) ---
 function toggleMic() {
     state.audioEnabled = !state.audioEnabled;
     state.localStream.getAudioTracks()[0].enabled = state.audioEnabled;
     const btn = document.getElementById('btn-mic');
-    if(state.audioEnabled) { 
-        btn.classList.remove('off'); 
-        btn.querySelector('span').innerText="Mute"; 
-        btn.querySelector('i').className="fas fa-microphone"; 
-    } else { 
-        btn.classList.add('off'); 
-        btn.querySelector('span').innerText="Unmute"; 
-        btn.querySelector('i').className="fas fa-microphone-slash"; 
-    }
+    if(state.audioEnabled) { btn.classList.remove('off'); btn.querySelector('span').innerText="Mute"; btn.querySelector('i').className="fas fa-microphone"; }
+    else { btn.classList.add('off'); btn.querySelector('span').innerText="Unmute"; btn.querySelector('i').className="fas fa-microphone-slash"; }
 }
-
 function toggleCam() {
     state.videoEnabled = !state.videoEnabled;
     state.localStream.getVideoTracks()[0].enabled = state.videoEnabled;
     const btn = document.getElementById('btn-cam');
-    if(state.videoEnabled) { 
-        btn.classList.remove('off'); 
-        btn.querySelector('span').innerText="Stop Video"; 
-        btn.querySelector('i').className="fas fa-video"; 
-    } else { 
-        btn.classList.add('off'); 
-        btn.querySelector('span').innerText="Start Video"; 
-        btn.querySelector('i').className="fas fa-video-slash"; 
-    }
+    if(state.videoEnabled) { btn.classList.remove('off'); btn.querySelector('span').innerText="Stop Video"; btn.querySelector('i').className="fas fa-video"; }
+    else { btn.classList.add('off'); btn.querySelector('span').innerText="Start Video"; btn.querySelector('i').className="fas fa-video-slash"; }
 }
 
-// --- Chat & Utils ---
+// --- Chat & Reactions ---
 function toggleSidebar() {
     const sb = document.getElementById('sidebar');
     const icon = document.getElementById('menu-icon');
-    
     if(sb.classList.contains('open')) {
         sb.classList.remove('open');
         icon.className = "fas fa-bars";
@@ -900,75 +775,44 @@ function toggleSidebar() {
         document.getElementById('chat-badge').innerText = '0';
     }
 }
-
 function notifyChat() {
     if(!document.getElementById('sidebar').classList.contains('open')) {
-        const b = document.getElementById('chat-badge'); 
-        b.innerText = parseInt(b.innerText||0)+1; 
-        b.style.display='block';
+        const b = document.getElementById('chat-badge'); b.innerText = parseInt(b.innerText||0)+1; b.style.display='block';
     }
 }
-
 function sendChat() {
-    const i = document.getElementById('chat-msg'); 
-    const t = i.value.trim(); 
-    if(!t) return;
-    
+    const i = document.getElementById('chat-msg'); const t = i.value.trim(); if(!t) return;
     addChatMsg("You", t, true);
-    Object.values(state.peers).forEach(p => { 
-        if(p.dc?.readyState==='open') p.dc.send(t); 
-    });
+    Object.values(state.peers).forEach(p => { if(p.dc?.readyState==='open') p.dc.send(t); });
     i.value = '';
 }
 document.getElementById('chat-msg').addEventListener('keypress', e => { if(e.key==='Enter') sendChat(); });
-
 function addChatMsg(s, t, l) {
-    const d = document.createElement('div'); 
-    d.className = `chat-bubble ${l?'local':'remote'}`;
+    const d = document.createElement('div'); d.className = `chat-bubble ${l?'local':'remote'}`;
     d.innerText = t;
-    const feed = document.getElementById('chat-feed');
-    feed.appendChild(d);
-    feed.scrollTop = feed.scrollHeight;
+    const f = document.getElementById('chat-feed'); f.appendChild(d); f.scrollTop = f.scrollHeight;
 }
-
-// --- Reactions ---
-function toggleReactionMenu() { 
-    document.getElementById('reaction-menu').classList.toggle('open'); 
-}
+function toggleReactionMenu() { document.getElementById('reaction-menu').classList.toggle('open'); }
 function sendReaction(emoji) {
     showFloatingReaction(emoji); 
-    Object.values(state.peers).forEach(p => { 
-        if(p.dc?.readyState==='open') p.dc.send(`REACT:${emoji}`); 
-    });
+    Object.values(state.peers).forEach(p => { if(p.dc?.readyState==='open') p.dc.send(`REACT:${emoji}`); });
     toggleReactionMenu(); 
 }
 function showFloatingReaction(emoji) {
-    const d = document.createElement('div'); 
-    d.innerText = emoji; 
-    d.style.position='absolute'; 
-    d.style.fontSize='3rem'; 
-    d.style.left = Math.random()*80+10+'%'; 
-    d.style.bottom='100px'; 
+    const d = document.createElement('div'); d.innerText = emoji; d.style.position='absolute'; 
+    d.style.fontSize='3rem'; d.style.left = Math.random()*80+10+'%'; d.style.bottom='100px'; 
     d.style.animation="floatUp 2s ease-out forwards";
     document.getElementById('reactions-container').appendChild(d); 
     setTimeout(()=>d.remove(),2000);
 }
 
-// --- Utilities ---
+// --- Utils ---
 function addToast(m, t) {
-    const d = document.createElement('div'); 
-    d.className = 'toast'; 
-    d.innerText = m;
-    document.getElementById('toast-container').appendChild(d); 
-    setTimeout(()=>d.remove(),3000);
+    const d = document.createElement('div'); d.className = 'toast'; d.innerText = m;
+    document.getElementById('toast-container').appendChild(d); setTimeout(()=>d.remove(),3000);
 }
-function copyLink() { 
-    navigator.clipboard.writeText(location.origin + "/?room=" + state.roomId); 
-    addToast("Copied!", "success"); 
-}
-function leaveCall() { 
-    if(confirm("End Meeting?")) location.reload(); 
-}
+function copyLink() { navigator.clipboard.writeText(location.origin + "/?room=" + state.roomId); addToast("Copied!", "success"); }
+function leaveCall() { if(confirm("End Meeting?")) location.reload(); }
     </script>
 </body>
 </html>
