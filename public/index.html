@@ -19,7 +19,7 @@
             --lobby-text: #1a202c;
             --lobby-border: 1px solid #e2e8f0;
             
-            /* --- MEETING INTERFACE (Dark Theme) --- */
+            /* --- MEETING INTERFACE (Dark Enterprise Theme) --- */
             --bg-deep: #0b141a;       
             --bg-panel: #1f2c34;      
             --bg-hover: #2a3942;
@@ -29,23 +29,23 @@
             /* --- Brand Colors --- */
             --primary: #00a884;       /* WhatsApp Green */
             --primary-hover: #008f6f; 
-            --accent: #3b82f6;        
+            --accent: #3b82f6;        /* Tech Blue */
             
             /* --- Functional --- */
             --danger: #ef4444;        
             --warning: #f59e0b;       
             --success: #22c55e;       
             
-            /* --- Dimensions --- */
+            /* --- Dimensions & Layout --- */
             --bottom-bar-height: 80px;
-            --sidebar-width: 360px; /* Wider for better chat experience */
+            --sidebar-width: 360px; /* Wider for better chat visibility */
             
             /* --- Effects --- */
             --radius-lg: 24px;
             --shadow-float: 0 10px 40px rgba(0,0,0,0.4);
             --glass-border: 1px solid rgba(255,255,255,0.1);
 
-            /* --- Safe Areas --- */
+            /* --- Safe Areas (iPhone Support) --- */
             --sat: env(safe-area-inset-top);
             --sab: env(safe-area-inset-bottom);
         }
@@ -120,7 +120,11 @@
         /* Light Inputs & Buttons */
         .form-group { margin-bottom: 24px; text-align: left; }
         .form-label { display: block; font-size: 0.85rem; color: #4a5568; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
-        .form-input { width: 100%; padding: 16px; background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 12px; color: #2d3748; font-size: 1.1rem; }
+        .form-input { 
+            width: 100%; padding: 16px; background: #f7fafc; 
+            border: 1px solid #cbd5e0; border-radius: 12px; 
+            color: #2d3748; font-size: 1.1rem; transition: all 0.2s; 
+        }
         .form-input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.1); }
 
         .btn { width: 100%; padding: 16px; border-radius: 50px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s; }
@@ -245,7 +249,7 @@
             padding-bottom: max(20px, env(safe-area-inset-bottom)); /* Respect safe area */
         }
         .chat-input { flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 12px 16px; color: white; }
-        .send-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); border: none; color: white; cursor: pointer; flex-shrink: 0; }
+        .send-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); border: none; color: white; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 
         /* =======================================================================
            6. BOTTOM CONTROL BAR (ZOOM STYLE)
@@ -468,6 +472,11 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Check for HTTPS
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            alert('Security Warning: You are not on HTTPS. Camera/Mic may not work.');
+        }
+
         const CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
         const state = {
             localStream: null, screenStream: null, mediaRecorder: null, chunks: [],

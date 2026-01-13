@@ -1,74 +1,74 @@
 const express = require('express');
 const app = express();
-const http = require('http').Server(app);
+const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const path = require('path');
 
-// Serve the static HTML file
-app.use(express.static(path.join(__dirname, 'public')));
+// 1. Serve the HTML file
+app.use(express.static(path.join(__dirname)));
 
-// If user goes to "/", send the index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// --- SOCKET.IO SIGNALING LOGIC ---
+// 2. WebSocket Logic (The Brain)
 io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
+    console.log('User connected:', socket.id);
 
-    // 1. HOST JOINING
-    socket.on('join-room', (data) => {
-        const { roomId, userName, isHost } = data;
+    // --- HOST JOINS ---
+    socket.on('join-room', ({ roomId, userName, isHost }) => {
         socket.join(roomId);
+        // Identify this socket as a host
+        socket.isHost = true;
+        socket.userName = userName;
+        socket.roomId = roomId;
         
-        // Notify others in room that a user connected
+        // Tell others in room (if any) that user connected
         socket.to(roomId).emit('user-connected', socket.id, userName);
-        
-        // Tag this socket as host for security (optional enhancement)
-        socket.isHost = isHost;
     });
 
-    // 2. GUEST REQUESTING ENTRY
-    socket.on('request-entry', (data) => {
-        const { roomId, userName } = data;
-        // Broadcast this request to everyone in the room (The Host will pick it up)
-        socket.to(roomId).emit('entry-requested', { 
-            socketId: socket.id, 
-            userName: userName 
+    // --- GUEST REQUESTS ENTRY (Knocking) ---
+    socket.on('request-entry', ({ roomId, userName }) => {
+        // We store these details on the socket temporarily
+        socket.userName = userName;
+        socket.roomId = roomId;
+
+        // Send the request ONLY to people already in the room (The Host)
+        socket.to(roomId).emit('entry-requested', {
+            socketId: socket.id,
+            userName: userName
         });
     });
 
-    // 3. ADMIN (HOST) ACTIONS
-    socket.on('admin-action', (data) => {
-        const { action, targetId } = data;
+    // --- HOST APPROVES/DENIES ---
+    socket.on('admin-action', ({ action, targetId }) => {
         if (action === 'approve') {
             io.to(targetId).emit('entry-approved');
-        } else if (action === 'deny') {
+        } else {
             io.to(targetId).emit('entry-denied');
         }
     });
 
-    // 4. GUEST FINAL JOIN (After Approval)
-    socket.on('join-room-final', (data) => {
-        const { roomId, userName } = data;
+    // --- GUEST FINALLY JOINS (After Approval) ---
+    socket.on('join-room-final', ({ roomId, userName }) => {
         socket.join(roomId);
         socket.to(roomId).emit('user-connected', socket.id, userName);
     });
 
-    // 5. WEBRTC SIGNALING (Offer, Answer, ICE Candidates)
-    socket.on('offer', (offer, targetId, userName) => {
-        io.to(targetId).emit('offer', offer, socket.id, userName);
+    // --- SIGNALING (WebRTC - Video/Audio exchange) ---
+    socket.on('offer', (payload, targetId, name) => {
+        io.to(targetId).emit('offer', payload, socket.id, name);
     });
 
-    socket.on('answer', (answer, targetId) => {
-        io.to(targetId).emit('answer', answer, socket.id);
+    socket.on('answer', (payload, targetId) => {
+        io.to(targetId).emit('answer', payload, socket.id);
     });
 
     socket.on('candidate', (candidate, targetId) => {
         io.to(targetId).emit('candidate', candidate, socket.id);
     });
 
-    // 6. SCREEN SHARE STATE
+    // --- SCREEN SHARING STATUS ---
     socket.on('start-screen-share', (roomId) => {
         socket.to(roomId).emit('screen-share-started', socket.id);
     });
@@ -77,15 +77,16 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('screen-share-stopped');
     });
 
-    // 7. DISCONNECT
+    // --- DISCONNECT ---
     socket.on('disconnect', () => {
-        // Notify everyone this user left so they can remove the video
-        io.emit('user-disconnected', socket.id);
+        if (socket.roomId) {
+            socket.to(socket.roomId).emit('user-disconnected', socket.id);
+        }
     });
 });
 
-// Start Server
+// 3. Start Server on Port 3000
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });
