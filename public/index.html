@@ -38,7 +38,7 @@
             
             /* --- Dimensions --- */
             --bottom-bar-height: 80px;
-            --sidebar-width: 340px; 
+            --sidebar-width: 360px; /* Wider for better chat experience */
             
             /* --- Effects --- */
             --radius-lg: 24px;
@@ -64,10 +64,11 @@
             padding-top: var(--sat); padding-bottom: var(--sab);
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
         .hidden { display: none !important; }
         .flex-center { display: flex; align-items: center; justify-content: center; }
@@ -76,15 +77,16 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-150px) scale(1.5); } }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-200px) scale(1.5); } }
         
-        /* THE "KNOCKING" ANIMATION */
+        /* KNOCKING ANIMATION (Wiggle Effect) */
         @keyframes knock {
             0% { transform: rotate(0deg); }
-            10% { transform: rotate(-10deg); }
-            20% { transform: rotate(10deg); }
-            30% { transform: rotate(-10deg); }
-            40% { transform: rotate(10deg); }
+            10% { transform: rotate(-15deg); }
+            20% { transform: rotate(15deg); }
+            30% { transform: rotate(-15deg); }
+            40% { transform: rotate(15deg); }
             50% { transform: rotate(0deg); }
             100% { transform: rotate(0deg); }
         }
@@ -115,7 +117,7 @@
         .brand-title { font-size: 2rem; font-weight: 800; color: #1a202c; margin-bottom: 8px; letter-spacing: -0.5px; }
         .brand-subtitle { color: #718096; font-size: 1rem; margin-bottom: 35px; }
 
-        /* Inputs & Buttons (Light) */
+        /* Light Inputs & Buttons */
         .form-group { margin-bottom: 24px; text-align: left; }
         .form-label { display: block; font-size: 0.85rem; color: #4a5568; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
         .form-input { width: 100%; padding: 16px; background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 12px; color: #2d3748; font-size: 1.1rem; }
@@ -134,14 +136,22 @@
         .meter-bar { flex: 1; background: var(--success); height: 5%; transition: height 0.05s ease; }
 
         /* =======================================================================
-           4. MAIN APP LAYOUT
+           4. MAIN APP LAYOUT (RESPONSIVE SPLIT)
            ======================================================================= */
-        #app-wrapper { display: flex; height: 100%; width: 100%; position: relative; overflow: hidden; }
+        #app-wrapper { 
+            display: flex; /* Side-by-side layout */
+            height: 100%; width: 100%; 
+            position: relative; overflow: hidden; 
+        }
 
-        /* Main Video Stage */
+        /* --- Main Video Stage --- */
+        /* This area shrinks when sidebar opens, ensuring chat input is visible */
         #main-stage { 
-            flex: 1; display: flex; flex-direction: column; background-color: var(--bg-deep); 
-            position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1; 
+            display: flex; flex-direction: column; 
+            background-color: var(--bg-deep); 
+            position: relative; overflow: hidden; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Room Info */
@@ -152,9 +162,9 @@
             display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); 
         }
         .copy-icon:hover { color: var(--primary); cursor: pointer; }
-        .rec-badge { margin-left: 10px; background: var(--danger); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; }
+        .rec-badge { margin-left: 10px; background: var(--danger); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; animation: pulse-ring 2s infinite; }
 
-        /* Hamburger Button */
+        /* Hamburger Button (Opens Chat) */
         .top-right-menu-btn {
             position: absolute; top: 20px; right: 20px; width: 45px; height: 45px;
             background: rgba(31, 44, 52, 0.85); color: white; border: var(--glass-border); border-radius: 12px;
@@ -164,7 +174,12 @@
         .top-right-menu-btn:hover { background: var(--primary); border-color: var(--primary); }
         .notif-badge { position: absolute; top: -5px; right: -5px; background: var(--success); color: #000; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: 800; display: none; }
 
-        /* Video Area */
+        /* Screen Share Focus View */
+        #dominant-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 20; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        #dominant-video { width: 100%; height: 100%; object-fit: contain; }
+        .screen-toast { position: absolute; top: 80px; background: rgba(0,0,0,0.8); color: white; padding: 10px 24px; border-radius: 30px; display: flex; align-items: center; gap: 10px; pointer-events: none; }
+
+        /* Video Grid */
         #video-grid { 
             width: 100%; height: 100%; padding: 20px; 
             display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 15px;
@@ -187,25 +202,21 @@
         }
         #local-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        /* Screen Share Focus */
-        #dominant-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 20; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        #dominant-video { width: 100%; height: 100%; object-fit: contain; }
-        .screen-toast { position: absolute; top: 80px; background: rgba(0,0,0,0.8); color: white; padding: 10px 24px; border-radius: 30px; display: flex; align-items: center; gap: 10px; pointer-events: none; }
-
-        .sharing-active #video-grid, .sharing-active #local-card { display: none !important; }
+        /* Hiding faces when sharing screen */
+        .sharing-active #video-grid { display: none !important; }
+        .sharing-active #local-card { display: none !important; }
         .sharing-active #dominant-view { display: flex !important; }
 
         /* =======================================================================
-           5. SIDEBAR (CHAT) - CORRECTED FOR VISIBILITY
+           5. SIDEBAR (CHAT) - VISIBLE INPUT
            ======================================================================= */
         #sidebar { 
-            width: 0; background: var(--bg-panel); 
+            width: 0; /* Hidden initially */
+            background: var(--bg-panel); 
             border-left: 1px solid rgba(255,255,255,0.05); 
             display: flex; flex-direction: column; height: 100%; 
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden; flex-shrink: 0; 
-            /* IMPORTANT: Add padding to bottom so input isn't hidden by bottom bar */
-            padding-bottom: var(--bottom-bar-height); 
         }
         
         #sidebar.open { width: var(--sidebar-width); } 
@@ -227,10 +238,11 @@
         .chat-bubble.local { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
         .chat-bubble.remote { align-self: flex-start; background: var(--bg-panel); color: var(--text-high); border-bottom-left-radius: 2px; }
         
-        /* Chat Input - Made visible */
+        /* INPUT BOX FIX: Ensure padding and visibility */
         .chat-input-box { 
-            padding: 15px; background: var(--bg-panel); border-top: 1px solid rgba(255,255,255,0.05); 
+            padding: 20px; background: var(--bg-panel); border-top: 1px solid rgba(255,255,255,0.05); 
             display: flex; gap: 10px; align-items: center; min-width: var(--sidebar-width);
+            padding-bottom: max(20px, env(safe-area-inset-bottom)); /* Respect safe area */
         }
         .chat-input { flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 12px 16px; color: white; }
         .send-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); border: none; color: white; cursor: pointer; flex-shrink: 0; }
@@ -292,12 +304,13 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: var(--z-modal); display: none; align-items: center; justify-content: center; }
         .modal-box { background: var(--bg-panel); width: 90%; max-width: 420px; padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); text-align: center; animation: popIn 0.3s; }
         
-        /* The Knocking Icon Animation */
+        /* KNOCKING ANIMATION */
         .knocking-icon { font-size: 3.5rem; color: var(--warning); margin-bottom: 20px; display: inline-block; animation: knock 1s infinite; }
 
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: var(--bg-panel); border-left: 4px solid var(--primary); padding: 12px 20px; border-radius: 6px; color: white; animation: slideUp 0.3s; pointer-events: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         
+        /* Mobile Tweaks */
         @media (max-width: 768px) {
             .lobby-card { padding: 30px 20px; }
             #sidebar.open { position: fixed; top: 0; left: 0; width: 100%; z-index: 600; }
@@ -400,6 +413,30 @@
             </div>
             
             <div id="reactions-container"></div>
+            
+            <footer id="controls-bar">
+                <button class="control-btn" id="btn-mic" onclick="toggleMic()">
+                    <i class="fas fa-microphone"></i> <span>Mute</span>
+                </button>
+                
+                <button class="control-btn" id="btn-cam" onclick="toggleCam()">
+                    <i class="fas fa-video"></i> <span>Stop Video</span>
+                </button>
+                
+                <button class="control-btn" id="btn-screen" onclick="toggleScreenShare()" style="color:var(--primary)">
+                    <i class="fas fa-desktop"></i> <span style="color:var(--primary)">Share</span>
+                </button>
+                
+                <button class="control-btn" id="btn-rec" onclick="toggleRecord()">
+                    <i class="fas fa-record-vinyl"></i> <span>Record</span>
+                </button>
+                
+                <button class="control-btn" id="btn-react" onclick="toggleReactionMenu()">
+                    <i class="fas fa-smile"></i> <span>React</span>
+                </button>
+                
+                <button class="btn-leave" onclick="leaveCall()">End</button>
+            </footer>
         </div>
 
         <div id="sidebar">
@@ -426,30 +463,6 @@
             <button class="emoji-btn" onclick="sendReaction('👏')">👏</button>
             <button class="emoji-btn" onclick="sendReaction('✋')">✋</button>
         </div>
-
-        <footer id="controls-bar">
-            <button class="control-btn" id="btn-mic" onclick="toggleMic()">
-                <i class="fas fa-microphone"></i> <span>Mute</span>
-            </button>
-            
-            <button class="control-btn" id="btn-cam" onclick="toggleCam()">
-                <i class="fas fa-video"></i> <span>Stop Video</span>
-            </button>
-            
-            <button class="control-btn" id="btn-screen" onclick="toggleScreenShare()" style="color:var(--primary)">
-                <i class="fas fa-desktop"></i> <span style="color:var(--primary)">Share</span>
-            </button>
-            
-            <button class="control-btn" id="btn-rec" onclick="toggleRecord()">
-                <i class="fas fa-record-vinyl"></i> <span>Record</span>
-            </button>
-            
-            <button class="control-btn" id="btn-react" onclick="toggleReactionMenu()">
-                <i class="fas fa-smile"></i> <span>React</span>
-            </button>
-            
-            <button class="btn-leave" onclick="leaveCall()">End</button>
-        </footer>
 
     </div>
 
@@ -553,6 +566,7 @@
         });
         socket.on('entry-approved', () => { addToast("Access Granted", "success"); socket.emit('join-room-final', {roomId:state.roomId, userName:state.userName}); });
         socket.on('entry-denied', () => { alert("Host Denied Entry"); location.reload(); });
+        
         socket.on('user-connected', (id, name) => { addToast(`${name} joined`, "info"); connectToUser(id, name); });
         socket.on('user-disconnected', (id) => { 
             if(state.peers[id]) { 
