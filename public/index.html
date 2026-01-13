@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shailmann Connect - Ultimate Host Edition</title>
+    <title>Shailmann Connect - WhatsApp Style</title>
     
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="shortcut icon" type="image/png" href="favicon.png">
@@ -320,7 +320,7 @@
         }
 
         /* =======================================================================
-           6. MAIN APPLICATION LAYOUT STRUCTURE
+           6. MAIN APPLICATION LAYOUT STRUCTURE (MODIFIED FOR WHATSAPP STYLE)
            ======================================================================= */
         #app-wrapper {
             display: flex;
@@ -430,21 +430,65 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* B. The Video Grid (Normal Mode) */
+        /* =====================================================================
+           KEY CHANGES FOR WHATSAPP STYLE (PIP MODE)
+           ===================================================================== */
+        
+        /* B. The Video Grid (Modified to allow layering) */
         #video-grid {
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            align-content: center;
-            gap: 15px;
-            padding: 20px;
-            overflow-y: auto;
-            transition: all 0.4s ease;
+            display: block; /* Removed flex to allow absolute positioning */
+            padding: 0;
+            overflow: hidden;
             z-index: var(--z-grid-normal);
         }
+
+        /* --- Local User Video (YOU - Bottom Right Corner) --- */
+        #local-card {
+            position: absolute !important;
+            bottom: 100px;  /* Sits above controls */
+            right: 15px;
+            width: 110px !important;   /* Mobile width */
+            height: 150px !important;  /* Mobile height */
+            z-index: 100;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            background: #232d36;
+        }
+        
+        #local-card .name-label { display: none; } /* Hide name on self view */
+
+        /* --- Remote User Video (THEM - Full Screen Background) --- */
+        /* Any video card in grid that is NOT the local card becomes background */
+        #video-grid .video-card:not(#local-card) {
+            position: absolute !important;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            z-index: 1; /* Behind local video */
+            border: none;
+        }
+
+        #video-grid .video-card:not(#local-card) video {
+            object-fit: cover !important; /* Forces video to fill screen vertically */
+            width: 100%;
+            height: 100%;
+        }
+        
+        #video-grid .video-card:not(#local-card) .name-label {
+            bottom: 100px;
+            left: 20px;
+            font-size: 1rem;
+            background: transparent;
+            text-shadow: 0 2px 4px black;
+        }
+
 
         /* C. The Video Grid (Top Strip Mode - When Sharing) */
         #video-grid.top-strip {
@@ -453,6 +497,7 @@
             left: 0;
             width: 100%;
             height: 160px; /* Fixed Height Strip */
+            display: flex; /* Return to flex for strip */
             justify-content: flex-start;
             flex-wrap: nowrap; /* Prevent wrapping */
             overflow-x: auto; /* Enable horizontal scroll */
@@ -464,6 +509,20 @@
             align-items: flex-start;
             gap: 10px;
         }
+        
+        /* Reset styles when in Top Strip mode */
+        #video-grid.top-strip .video-card {
+            position: relative !important;
+            width: 200px !important;
+            min-width: 200px;
+            height: 112px !important;
+            aspect-ratio: 16/9;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-right: 5px;
+            border-radius: var(--radius-md) !important;
+            bottom: auto !important; right: auto !important;
+        }
 
         /* --- Video Card Component --- */
         .video-card {
@@ -473,30 +532,6 @@
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            
-            /* Default Desktop Grid Size */
-            width: 45%; 
-            max-width: 600px; 
-            aspect-ratio: 16/9;
-            border: 2px solid transparent; /* For speaker highlight */
-        }
-
-        /* Modify Video Card when inside Top Strip */
-        #video-grid.top-strip .video-card {
-            width: 200px !important;
-            min-width: 200px;
-            height: 112px !important;
-            aspect-ratio: 16/9;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin-right: 5px;
-        }
-
-        /* Modify Name Tag in Top Strip */
-        #video-grid.top-strip .name-label {
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            bottom: 5px; left: 5px;
         }
 
         /* Video Element */
@@ -804,16 +839,6 @@
                 overflow-x: hidden;
             }
             
-            /* Force Video Cards to use full width in portrait */
-            .video-card {
-                width: 100% !important;
-                max-width: none !important;
-                height: auto !important;
-                aspect-ratio: 4/3;
-                flex-shrink: 0;
-                margin-bottom: 10px;
-            }
-
             /* Optimize Controls Bar for Mobile */
             #controls-bar {
                 padding: 5px;
