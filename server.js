@@ -3,90 +3,80 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const path = require('path');
+const fs = require('fs');
 
-// 1. Serve the HTML file
-app.use(express.static(path.join(__dirname)));
+// --- PATH CONFIGURATION ---
+// Point specifically to the 'public' folder based on your structure
+const publicPath = path.join(__dirname, 'public');
 
+// --- DEBUGGING (Check if file exists) ---
+const indexPath = path.join(publicPath, 'index.html');
+
+if (fs.existsSync(indexPath)) {
+    console.log("✅ Success: Found index.html at " + indexPath);
+} else {
+    console.error("❌ ERROR: Could not find index.html!");
+    console.error("Looking in: " + publicPath);
+    console.error("Current directory files: ", fs.readdirSync(__dirname));
+    // If public folder exists, show its content to help debug
+    if (fs.existsSync(publicPath)) {
+        console.error("Public folder contents: ", fs.readdirSync(publicPath));
+    }
+}
+
+// 1. Serve static files from the 'public' folder
+app.use(express.static(publicPath));
+
+// 2. Send index.html when user visits the homepage
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(indexPath);
 });
 
-// 2. WebSocket Logic (The Brain)
+// --- SOCKET.IO LOGIC (The Brain) ---
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    // --- HOST JOINS ---
-    socket.on('join-room', ({ roomId, userName, isHost }) => {
+    // Host Join
+    socket.on('join-room', ({ roomId, userName }) => {
         socket.join(roomId);
-        // Identify this socket as a host
         socket.isHost = true;
         socket.userName = userName;
         socket.roomId = roomId;
-        
-        // Tell others in room (if any) that user connected
         socket.to(roomId).emit('user-connected', socket.id, userName);
     });
 
-    // --- GUEST REQUESTS ENTRY (Knocking) ---
+    // Guest Request
     socket.on('request-entry', ({ roomId, userName }) => {
-        // We store these details on the socket temporarily
         socket.userName = userName;
         socket.roomId = roomId;
-
-        // Send the request ONLY to people already in the room (The Host)
-        socket.to(roomId).emit('entry-requested', {
-            socketId: socket.id,
-            userName: userName
-        });
+        socket.to(roomId).emit('entry-requested', { socketId: socket.id, userName });
     });
 
-    // --- HOST APPROVES/DENIES ---
+    // Admin Actions
     socket.on('admin-action', ({ action, targetId }) => {
-        if (action === 'approve') {
-            io.to(targetId).emit('entry-approved');
-        } else {
-            io.to(targetId).emit('entry-denied');
-        }
+        io.to(targetId).emit(action === 'approve' ? 'entry-approved' : 'entry-denied');
     });
 
-    // --- GUEST FINALLY JOINS (After Approval) ---
+    // Guest Join Final
     socket.on('join-room-final', ({ roomId, userName }) => {
         socket.join(roomId);
         socket.to(roomId).emit('user-connected', socket.id, userName);
     });
 
-    // --- SIGNALING (WebRTC - Video/Audio exchange) ---
-    socket.on('offer', (payload, targetId, name) => {
-        io.to(targetId).emit('offer', payload, socket.id, name);
-    });
+    // WebRTC Signaling
+    socket.on('offer', (payload, target, name) => io.to(target).emit('offer', payload, socket.id, name));
+    socket.on('answer', (payload, target) => io.to(target).emit('answer', payload, socket.id));
+    socket.on('candidate', (cand, target) => io.to(target).emit('candidate', cand, socket.id));
 
-    socket.on('answer', (payload, targetId) => {
-        io.to(targetId).emit('answer', payload, socket.id);
-    });
-
-    socket.on('candidate', (candidate, targetId) => {
-        io.to(targetId).emit('candidate', candidate, socket.id);
-    });
-
-    // --- SCREEN SHARING STATUS ---
-    socket.on('start-screen-share', (roomId) => {
-        socket.to(roomId).emit('screen-share-started', socket.id);
-    });
-
-    socket.on('stop-screen-share', (roomId) => {
-        socket.to(roomId).emit('screen-share-stopped');
-    });
-
-    // --- DISCONNECT ---
+    // Screen Share & Chat
+    socket.on('start-screen-share', (roomId) => socket.to(roomId).emit('screen-share-started', socket.id));
+    socket.on('stop-screen-share', (roomId) => socket.to(roomId).emit('screen-share-stopped'));
+    
+    // Disconnect
     socket.on('disconnect', () => {
-        if (socket.roomId) {
-            socket.to(socket.roomId).emit('user-disconnected', socket.id);
-        }
+        if (socket.roomId) socket.to(socket.roomId).emit('user-disconnected', socket.id);
     });
 });
 
-// 3. Start Server on Port 3000
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
+http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
