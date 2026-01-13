@@ -19,7 +19,7 @@
             --lobby-text: #1a202c;
             --lobby-border: 1px solid #e2e8f0;
             
-            /* --- MEETING INTERFACE (Dark Enterprise Theme) --- */
+            /* --- MEETING INTERFACE (Dark Theme) --- */
             --bg-deep: #0b141a;       
             --bg-panel: #1f2c34;      
             --bg-hover: #2a3942;
@@ -29,25 +29,23 @@
             /* --- Brand Colors --- */
             --primary: #00a884;       /* WhatsApp Green */
             --primary-hover: #008f6f; 
-            --accent: #3b82f6;        /* Tech Blue */
+            --accent: #3b82f6;        
             
             /* --- Functional --- */
             --danger: #ef4444;        
             --warning: #f59e0b;       
             --success: #22c55e;       
             
-            /* --- Dimensions & Layout --- */
+            /* --- Dimensions --- */
             --bottom-bar-height: 80px;
             --sidebar-width: 340px; 
-            --header-height: 60px;
             
-            /* --- Visual Effects --- */
-            --radius-md: 16px;
+            /* --- Effects --- */
             --radius-lg: 24px;
             --shadow-float: 0 10px 40px rgba(0,0,0,0.4);
             --glass-border: 1px solid rgba(255,255,255,0.1);
 
-            /* --- Safe Areas (iPhone Support) --- */
+            /* --- Safe Areas --- */
             --sat: env(safe-area-inset-top);
             --sab: env(safe-area-inset-bottom);
         }
@@ -66,7 +64,7 @@
             padding-top: var(--sat); padding-bottom: var(--sab);
         }
 
-        /* Custom Scrollbar */
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); border-radius: 4px; }
@@ -78,26 +76,34 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-200px) scale(1.5); } }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-150px) scale(1.5); } }
+        
+        /* THE "KNOCKING" ANIMATION */
+        @keyframes knock {
+            0% { transform: rotate(0deg); }
+            10% { transform: rotate(-10deg); }
+            20% { transform: rotate(10deg); }
+            30% { transform: rotate(-10deg); }
+            40% { transform: rotate(10deg); }
+            50% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
 
         /* =======================================================================
-           3. HOMEPAGE / LOBBY (LIGHT THEME)
+           3. LOBBY UI (LIGHT THEME)
            ======================================================================= */
         #lobby-wrapper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--lobby-bg);
-            z-index: 5000;
+            background: var(--lobby-bg); z-index: 5000;
             display: flex; align-items: center; justify-content: center; padding: 20px;
             color: var(--lobby-text);
         }
 
         .lobby-card {
             background: var(--lobby-panel); width: 100%; max-width: 480px; padding: 48px;
-            border-radius: var(--radius-lg); 
+            border-radius: var(--radius-lg); border: var(--lobby-border);
             box-shadow: 0 20px 60px rgba(0,0,0,0.1); 
-            text-align: center; border: var(--lobby-border);
-            animation: slideUp 0.5s ease-out; position: relative; overflow: hidden;
+            text-align: center; animation: slideUp 0.5s ease-out; position: relative; overflow: hidden;
         }
         
         .lobby-card::before {
@@ -109,99 +115,56 @@
         .brand-title { font-size: 2rem; font-weight: 800; color: #1a202c; margin-bottom: 8px; letter-spacing: -0.5px; }
         .brand-subtitle { color: #718096; font-size: 1rem; margin-bottom: 35px; }
 
-        /* Light Inputs */
+        /* Inputs & Buttons (Light) */
         .form-group { margin-bottom: 24px; text-align: left; }
-        .form-label { display: block; font-size: 0.85rem; color: #4a5568; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-input { 
-            width: 100%; padding: 16px; background: #f7fafc; 
-            border: 1px solid #cbd5e0; border-radius: 12px; 
-            color: #2d3748; font-size: 1.1rem; transition: all 0.2s; 
-        }
+        .form-label { display: block; font-size: 0.85rem; color: #4a5568; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
+        .form-input { width: 100%; padding: 16px; background: #f7fafc; border: 1px solid #cbd5e0; border-radius: 12px; color: #2d3748; font-size: 1.1rem; }
         .form-input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.1); }
 
-        /* Light Buttons */
-        .btn { 
-            width: 100%; padding: 16px; border-radius: 50px; border: none; 
-            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; 
-            display: flex; align-items: center; justify-content: center; gap: 10px; 
-        }
-        .btn-primary { 
-            background: var(--primary); color: white; 
-            box-shadow: 0 4px 15px rgba(0, 168, 132, 0.3); 
-        }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 168, 132, 0.4); }
-        
-        .btn-outline { 
-            background: transparent; border: 2px solid #e2e8f0; color: #4a5568; margin-top: 16px; 
-        }
+        .btn { width: 100%; padding: 16px; border-radius: 50px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0, 168, 132, 0.3); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 2px solid #e2e8f0; color: #4a5568; margin-top: 16px; }
         .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: #f0fff4; }
 
-        /* Preview Video */
-        .preview-box { 
-            width: 100%; height: 260px; background: #000; border-radius: var(--radius-md); 
-            overflow: hidden; position: relative; margin-bottom: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
+        /* Preview */
+        .preview-box { width: 100%; height: 260px; background: #000; border-radius: 16px; overflow: hidden; position: relative; margin-bottom: 25px; }
         #preview-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         .sound-meter-strip { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; background: rgba(0,0,0,0.3); display: flex; align-items: flex-end; gap: 1px; }
         .meter-bar { flex: 1; background: var(--success); height: 5%; transition: height 0.05s ease; }
 
         /* =======================================================================
-           4. MAIN APP LAYOUT (DARK THEME & RESIZABLE)
+           4. MAIN APP LAYOUT
            ======================================================================= */
-        #app-wrapper { 
-            display: flex; 
-            height: 100%; width: 100%; 
-            position: relative; 
-            overflow: hidden; 
-        }
+        #app-wrapper { display: flex; height: 100%; width: 100%; position: relative; overflow: hidden; }
 
-        /* --- Main Video Stage (Resizes when Chat Opens) --- */
+        /* Main Video Stage */
         #main-stage { 
-            flex: 1; 
-            display: flex; flex-direction: column; 
-            background-color: var(--bg-deep); 
-            position: relative; 
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1; display: flex; flex-direction: column; background-color: var(--bg-deep); 
+            position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* --- Room Info (Top Left) --- */
+        /* Room Info */
         .room-badge { 
             position: absolute; top: 20px; left: 20px; z-index: 50; 
             background: rgba(31, 44, 52, 0.85); padding: 8px 16px; border-radius: 30px; 
-            border: var(--glass-border); color: var(--text-high); 
-            font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 10px; 
-            backdrop-filter: blur(8px); 
+            border: var(--glass-border); color: var(--text-high); font-size: 0.9rem; font-weight: 500; 
+            display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); 
         }
-        .copy-icon { cursor: pointer; color: var(--text-med); }
-        .copy-icon:hover { color: var(--primary); }
-        .rec-badge { margin-left: 10px; background: var(--danger); color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; animation: pulse-ring 2s infinite; }
+        .copy-icon:hover { color: var(--primary); cursor: pointer; }
+        .rec-badge { margin-left: 10px; background: var(--danger); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; }
 
-        /* --- Hamburger (Top Right) --- */
+        /* Hamburger Button */
         .top-right-menu-btn {
             position: absolute; top: 20px; right: 20px; width: 45px; height: 45px;
-            background: rgba(31, 44, 52, 0.85); color: white;
-            border: var(--glass-border); border-radius: 12px;
+            background: rgba(31, 44, 52, 0.85); color: white; border: var(--glass-border); border-radius: 12px;
             cursor: pointer; z-index: 300; display: flex; align-items: center; justify-content: center;
             font-size: 1.2rem; transition: all 0.2s; backdrop-filter: blur(8px);
         }
         .top-right-menu-btn:hover { background: var(--primary); border-color: var(--primary); }
         .notif-badge { position: absolute; top: -5px; right: -5px; background: var(--success); color: #000; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: 800; display: none; }
 
-        /* --- Screen Share Focus View --- */
-        #dominant-view { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; 
-            z-index: 20; display: none; flex-direction: column; justify-content: center; align-items: center; 
-        }
-        #dominant-video { width: 100%; height: 100%; object-fit: contain; }
-        .screen-toast { 
-            position: absolute; top: 80px; background: rgba(0,0,0,0.8); color: white; 
-            padding: 10px 24px; border-radius: 30px; font-size: 0.9rem; 
-            display: flex; align-items: center; gap: 10px; pointer-events: none;
-        }
-
-        /* --- Video Grid --- */
+        /* Video Area */
         #video-grid { 
             width: 100%; height: 100%; padding: 20px; 
             display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 15px;
@@ -209,41 +172,43 @@
         }
         
         .video-card { 
-            position: relative; background: var(--bg-panel); border-radius: var(--radius-md); 
+            position: relative; background: var(--bg-panel); border-radius: 16px; 
             overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3); 
             flex-grow: 1; max-width: 100%; min-width: 300px; aspect-ratio: 16/9;
         }
         .video-card video { width: 100%; height: 100%; object-fit: cover; }
-        .name-tag { position: absolute; bottom: 15px; left: 15px; background: rgba(0,0,0,0.6); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; backdrop-filter: blur(4px); }
+        .name-tag { position: absolute; bottom: 15px; left: 15px; background: rgba(0,0,0,0.6); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; }
 
-        /* --- Self View (PIP) --- */
+        /* Self View (PIP) */
         #local-card { 
             position: absolute; bottom: 100px; right: 20px; width: 160px; height: 100px; 
             z-index: 100; border-radius: 12px; border: var(--glass-border); 
-            box-shadow: var(--shadow-float); background: #000; overflow: hidden;
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); background: #000; overflow: hidden;
         }
         #local-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        /* --- Sharing Active State (Hide Faces) --- */
-        .sharing-active #video-grid { display: none !important; }
-        .sharing-active #local-card { display: none !important; }
+        /* Screen Share Focus */
+        #dominant-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 20; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        #dominant-video { width: 100%; height: 100%; object-fit: contain; }
+        .screen-toast { position: absolute; top: 80px; background: rgba(0,0,0,0.8); color: white; padding: 10px 24px; border-radius: 30px; display: flex; align-items: center; gap: 10px; pointer-events: none; }
+
+        .sharing-active #video-grid, .sharing-active #local-card { display: none !important; }
         .sharing-active #dominant-view { display: flex !important; }
 
         /* =======================================================================
-           5. SIDEBAR (CHAT) - PUSH LAYOUT
+           5. SIDEBAR (CHAT) - CORRECTED FOR VISIBILITY
            ======================================================================= */
         #sidebar { 
-            width: 0; /* Initially Hidden */
-            background: var(--bg-panel); 
+            width: 0; background: var(--bg-panel); 
             border-left: 1px solid rgba(255,255,255,0.05); 
             display: flex; flex-direction: column; height: 100%; 
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            flex-shrink: 0; 
+            overflow: hidden; flex-shrink: 0; 
+            /* IMPORTANT: Add padding to bottom so input isn't hidden by bottom bar */
+            padding-bottom: var(--bottom-bar-height); 
         }
         
-        #sidebar.open { width: var(--sidebar-width); } /* Expand width */
+        #sidebar.open { width: var(--sidebar-width); } 
 
         .sidebar-header { 
             height: 60px; border-bottom: 1px solid rgba(255,255,255,0.05); 
@@ -262,13 +227,13 @@
         .chat-bubble.local { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
         .chat-bubble.remote { align-self: flex-start; background: var(--bg-panel); color: var(--text-high); border-bottom-left-radius: 2px; }
         
+        /* Chat Input - Made visible */
         .chat-input-box { 
             padding: 15px; background: var(--bg-panel); border-top: 1px solid rgba(255,255,255,0.05); 
             display: flex; gap: 10px; align-items: center; min-width: var(--sidebar-width);
         }
-        .chat-input { flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 12px 16px; color: white; font-family: inherit; }
-        .chat-input:focus { border-color: var(--primary); }
-        .send-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .chat-input { flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 12px 16px; color: white; }
+        .send-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); border: none; color: white; cursor: pointer; flex-shrink: 0; }
 
         /* =======================================================================
            6. BOTTOM CONTROL BAR (ZOOM STYLE)
@@ -296,18 +261,12 @@
         
         .control-btn:hover { color: white; }
         .control-btn:hover i { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
-        
-        /* Active / Muted Styles */
         .control-btn.active i { background: var(--primary); color: white; }
         .control-btn.active span { color: var(--primary); }
-        
-        .control-btn.off i { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        .control-btn.off i { color: var(--danger); border: 1px solid var(--danger); }
         .control-btn.off span { color: var(--danger); }
 
-        .btn-leave { 
-            margin-left: 20px; background: rgba(239, 68, 68, 0.15); color: var(--danger); 
-            padding: 10px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; font-size: 0.9rem;
-        }
+        .btn-leave { margin-left: 20px; background: rgba(239, 68, 68, 0.15); color: var(--danger); padding: 10px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; }
         .btn-leave:hover { background: var(--danger); color: white; }
 
         /* =======================================================================
@@ -318,37 +277,32 @@
             background: rgba(31, 44, 52, 0.95); backdrop-filter: blur(10px);
             padding: 10px; border-radius: 50px; display: flex; gap: 10px;
             border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 500;
-            transition: all 0.2s;
-            opacity: 0; pointer-events: none; transform: translate(-50%, 20px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 500;
+            transition: all 0.2s; opacity: 0; pointer-events: none; transform: translate(-50%, 20px);
         }
         #reaction-menu.open { opacity: 1; pointer-events: all; transform: translate(-50%, 0); }
         
-        .emoji-btn {
-            background: transparent; border: none; font-size: 1.8rem; cursor: pointer;
-            transition: transform 0.2s; padding: 5px;
-        }
+        .emoji-btn { background: transparent; border: none; font-size: 1.8rem; cursor: pointer; transition: transform 0.2s; padding: 5px; }
         .emoji-btn:hover { transform: scale(1.3); }
-
         #reactions-container { position: absolute; bottom: 120px; left: 20px; width: 100px; pointer-events: none; z-index: 600; }
 
         /* =======================================================================
-           8. UTILS & MOBILE
+           8. MODALS & UTILS
            ======================================================================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: var(--z-modal); display: none; align-items: center; justify-content: center; }
+        .modal-box { background: var(--bg-panel); width: 90%; max-width: 420px; padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); text-align: center; animation: popIn 0.3s; }
+        
+        /* The Knocking Icon Animation */
+        .knocking-icon { font-size: 3.5rem; color: var(--warning); margin-bottom: 20px; display: inline-block; animation: knock 1s infinite; }
+
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: var(--bg-panel); border-left: 4px solid var(--primary); padding: 12px 20px; border-radius: 6px; color: white; animation: slideUp 0.3s; pointer-events: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         
-        /* Mobile Tweaks */
         @media (max-width: 768px) {
             .lobby-card { padding: 30px 20px; }
-            .brand-logo { font-size: 2.5rem; }
-            
-            #sidebar.open { position: fixed; top: 0; left: 0; width: 100%; z-index: 600; } /* Fullscreen chat on mobile */
-            
+            #sidebar.open { position: fixed; top: 0; left: 0; width: 100%; z-index: 600; }
             #controls-bar { justify-content: flex-start; overflow-x: auto; padding-left: 10px; }
             .control-btn { min-width: 60px; }
-            
             #local-card { width: 90px; height: 130px; bottom: 85px; right: 10px; }
         }
     </style>
@@ -357,29 +311,36 @@
 
     <div id="toast-container"></div>
 
+    <div id="waiting-modal" class="modal-overlay">
+        <div class="modal-box">
+            <i class="fas fa-user-clock knocking-icon"></i>
+            <h3 style="margin-bottom: 10px;">Knock Knock!</h3>
+            <p id="wait-msg" style="color: var(--text-med); margin: 10px 0 25px 0;">Someone is waiting.</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="btn btn-outline" id="deny-btn" style="color:var(--danger); border-color:var(--danger); width:auto;">Deny</button>
+                <button class="btn btn-primary" id="allow-btn" style="width:auto;">Admit</button>
+            </div>
+        </div>
+    </div>
+
     <div id="lobby-wrapper">
         <div id="lobby-step-1" class="lobby-card">
             <i class="fas fa-video brand-logo"></i>
             <div class="brand-title">Shailmann Connect</div>
             <div class="brand-subtitle">Secure Video Conferencing</div>
-            <button class="btn btn-primary" onclick="showLobby(2)">
-                <i class="fas fa-plus"></i> New Meeting
-            </button>
-            <button class="btn btn-outline" onclick="showLobby(3)">
-                <i class="fas fa-sign-in-alt"></i> Join Existing
-            </button>
+            <button class="btn btn-primary" onclick="showLobby(2)"><i class="fas fa-plus"></i> New Meeting</button>
+            <button class="btn btn-outline" onclick="showLobby(3)"><i class="fas fa-sign-in-alt"></i> Join Existing</button>
         </div>
 
         <div id="lobby-step-2" class="lobby-card hidden">
             <div class="brand-title">Host Meeting</div>
-            <div class="brand-subtitle">Create your room</div>
             <div class="form-group">
                 <label class="form-label">Display Name</label>
                 <input type="text" id="host-name" class="form-input" placeholder="e.g. John Doe">
             </div>
             <div class="form-group">
                 <label class="form-label">Room Name (Optional)</label>
-                <input type="text" id="create-room" class="form-input" placeholder="Auto-generated if empty">
+                <input type="text" id="create-room" class="form-input" placeholder="Auto-generated">
             </div>
             <button class="btn btn-primary" onclick="initHost()">Continue</button>
             <button class="btn btn-outline" onclick="showLobby(1)">Back</button>
@@ -387,10 +348,9 @@
 
         <div id="lobby-step-3" class="lobby-card hidden">
             <div class="brand-title">Join Meeting</div>
-            <div class="brand-subtitle">Enter credentials</div>
             <div class="form-group">
                 <label class="form-label">Display Name</label>
-                <input type="text" id="guest-name" class="form-input" placeholder="e.g. Guest User">
+                <input type="text" id="guest-name" class="form-input" placeholder="e.g. Guest">
             </div>
             <div class="form-group">
                 <label class="form-label">Room ID</label>
@@ -428,14 +388,11 @@
             </button>
 
             <div id="dominant-view">
-                <div class="screen-toast">
-                    <i class="fas fa-desktop"></i> <span id="share-user">User</span> is presenting
-                </div>
+                <div class="screen-toast"><i class="fas fa-desktop"></i> <span id="share-user">User</span> is presenting</div>
                 <video id="dominant-video" autoplay playsinline></video>
             </div>
 
-            <div id="video-grid">
-                </div>
+            <div id="video-grid"></div>
 
             <div id="local-card">
                 <video id="local-video" autoplay muted playsinline></video>
@@ -443,7 +400,6 @@
             </div>
             
             <div id="reactions-container"></div>
-
         </div>
 
         <div id="sidebar">
@@ -468,7 +424,6 @@
             <button class="emoji-btn" onclick="sendReaction('😂')">😂</button>
             <button class="emoji-btn" onclick="sendReaction('😮')">😮</button>
             <button class="emoji-btn" onclick="sendReaction('👏')">👏</button>
-            <button class="emoji-btn" onclick="sendReaction('🎉')">🎉</button>
             <button class="emoji-btn" onclick="sendReaction('✋')">✋</button>
         </div>
 
@@ -504,16 +459,14 @@
         const state = {
             localStream: null, screenStream: null, mediaRecorder: null, chunks: [],
             isHost: false, isScreenSharing: false, isRecording: false,
-            roomId: null, userName: "User", peers: {}, 
-            audioEnabled: true, videoEnabled: true
+            roomId: null, userName: "User", peers: {}, audioEnabled: true, videoEnabled: true
         };
         const socket = io();
         const els = {
             lobby: document.getElementById('lobby-wrapper'), app: document.getElementById('app-wrapper'),
             grid: document.getElementById('video-grid'), dominant: document.getElementById('dominant-view'),
             localVideo: document.getElementById('local-video'), previewVideo: document.getElementById('preview-video'),
-            shareVideo: document.getElementById('dominant-video'),
-            status: document.getElementById('status-text')
+            shareVideo: document.getElementById('dominant-video'), status: document.getElementById('status-text')
         };
 
         // --- Visualizer ---
@@ -582,15 +535,24 @@
             }
         };
 
-        // --- Socket Events ---
+        // --- Socket Events (Knocking Logic) ---
         socket.on('entry-requested', (data) => {
             if(!state.isHost) return;
-            if(confirm(`${data.userName} is knocking. Admit?`)) socket.emit('admin-action', {action:'approve', targetId:data.socketId});
-            else socket.emit('admin-action', {action:'deny', targetId:data.socketId});
+            const m = document.getElementById('waiting-modal');
+            m.style.display = 'flex'; // Show modal
+            document.getElementById('wait-msg').innerText = `${data.userName} is waiting.`;
+            
+            document.getElementById('allow-btn').onclick = () => {
+                socket.emit('admin-action', {action:'approve', targetId:data.socketId});
+                m.style.display = 'none';
+            };
+            document.getElementById('deny-btn').onclick = () => {
+                socket.emit('admin-action', {action:'deny', targetId:data.socketId});
+                m.style.display = 'none';
+            };
         });
         socket.on('entry-approved', () => { addToast("Access Granted", "success"); socket.emit('join-room-final', {roomId:state.roomId, userName:state.userName}); });
         socket.on('entry-denied', () => { alert("Host Denied Entry"); location.reload(); });
-        
         socket.on('user-connected', (id, name) => { addToast(`${name} joined`, "info"); connectToUser(id, name); });
         socket.on('user-disconnected', (id) => { 
             if(state.peers[id]) { 
@@ -694,7 +656,6 @@
                 document.getElementById('rec-status').classList.add('hidden');
                 state.isRecording = false;
             } else {
-                // Record screen if active, otherwise cam
                 const streamToRecord = state.isScreenSharing ? state.screenStream : state.localStream;
                 state.chunks = [];
                 state.mediaRecorder = new MediaRecorder(streamToRecord, {mimeType:'video/webm;codecs=vp9'});
@@ -762,7 +723,7 @@
             document.getElementById('chat-feed').scrollTop = 10000;
         }
 
-        // --- NEW: Reaction Logic ---
+        // --- Reaction Menu ---
         function toggleReactionMenu() {
             document.getElementById('reaction-menu').classList.toggle('open');
         }
