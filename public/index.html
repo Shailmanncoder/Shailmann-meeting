@@ -1,2998 +1,1554 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="shailmann-connect-app">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shailmann Connect - Professional Video Conferencing</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="Shailmann Connect - Enterprise Grade Video Conferencing Solution for Professional Teams. Features screen sharing, encrypted chat, and high-definition video.">
+    <meta name="author" content="Shailmann Technologies">
+    <meta name="theme-color" content="#0f0f0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <title>Shailmann Connect | Enterprise Video Workspace</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        /* ================================================================================
-           PROFESSIONAL VIDEO CONFERENCING PLATFORM - COMPLETE STYLING SYSTEM
-           Version: 2.0 Enterprise Edition
-           ================================================================================ */
-
-        /* =======================================================================
-           1. CSS CUSTOM PROPERTIES & THEME CONFIGURATION
-           ======================================================================= */
+        /* * ================================================================================================
+         * SECTION 1: CORE CSS VARIABLES & THEME ENGINE
+         * ================================================================================================
+         * Defines the root variables for the dark mode theme, spacing system, typography, 
+         * and z-index layering architecture.
+         */
         :root {
-            /* --- Primary Color Palette (Dark Theme) --- */
-            --bg-body: #0f0f0f;
-            --bg-main: #1a1a1a;
-            --bg-panel: #1e1e1e;
-            --bg-panel-elevated: #252525;
-            --bg-control-bar: #18191a;
-            --bg-button: #3c4043;
-            --bg-button-hover: #4a4e51;
-            --bg-button-active: #5a5e61;
+            /* * ----------------------------------------------------------------------------
+             * 1.1 COLOR PALETTE - DARK MODE (DEFAULT)
+             * ----------------------------------------------------------------------------
+             */
+            
+            /* Background Surfaces */
+            --color-bg-app: #0f0f0f;            /* Main app background (Deepest Black) */
+            --color-bg-stage: #000000;          /* Video stage background */
+            --color-bg-panel: #1e1e1e;          /* Standard panel background */
+            --color-bg-panel-hover: #252525;    /* Hover state for panels */
+            --color-bg-elevated: #2a2a2a;       /* Dropdowns, Modals, Popovers */
+            --color-bg-controls: #18181b;       /* Bottom Control Bar */
+            
+            /* Brand Identity Colors */
+            --color-brand-primary: #8ab4f8;     /* Core Blue */
+            --color-brand-secondary: #c58af9;   /* Secondary Purple */
+            --color-brand-tertiary: #81c995;    /* Tertiary Green */
+            
+            /* Semantic Status Colors */
+            --color-status-success: #34a853;    /* Active, Online, Good Connection */
+            --color-status-warning: #fbbc04;    /* Poor Connection, Warnings */
+            --color-status-danger: #ea4335;     /* Error, Offline, Hangup, Mute */
+            --color-status-danger-hover: #d93025;
+            --color-status-info: #4285f4;       /* Information toasts */
 
-            /* --- Brand & Status Colors --- */
-            --primary: #8ab4f8;
-            --primary-hover: #a8c7fa;
-            --primary-dark: #669df6;
-            --secondary: #81c995;
-            --accent: #fcc934;
-            --danger: #ea4335;
-            --danger-hover: #d93025;
-            --danger-dark: #c5221f;
-            --success: #34a853;
-            --success-light: #81c995;
-            --warning: #fbbc04;
-            --info: #4285f4;
+            /* Interactive Elements */
+            --color-btn-default: #3c4043;
+            --color-btn-hover: #4a4e51;
+            --color-btn-active: #5f6368;
+            --color-btn-text: #e8eaed;
 
-            /* --- Chat Specific Colors (WhatsApp/Modern Messaging Style) --- */
-            --chat-bg: #0b141a;
-            --chat-bg-pattern: #0d1418;
-            --msg-in-bg: #202c33;
-            --msg-out-bg: #005c4b;
-            --msg-text: #e9edef;
-            --msg-time: #8696a0;
-            --chat-input-bg: #2a3942;
-            --chat-input-border: #3b4a54;
+            /* Text Hierarchy */
+            --color-text-high-emphasis: #ffffff;
+            --color-text-medium-emphasis: #e8eaed;
+            --color-text-low-emphasis: #9aa0a6;
+            --color-text-disabled: #5f6368;
+            --color-text-inverse: #202124;
 
-            /* --- Text Colors --- */
-            --text-primary: #e3e3e3;
-            --text-secondary: #bdc1c6;
-            --text-tertiary: #9aa0a6;
-            --text-disabled: #5f6368;
+            /* Borders & Dividers */
+            --color-border-subtle: rgba(255, 255, 255, 0.08);
+            --color-border-medium: rgba(255, 255, 255, 0.15);
+            --color-border-strong: rgba(255, 255, 255, 0.3);
 
-            /* --- Border & Divider Colors --- */
-            --border-color: #333333;
-            --border-light: #404040;
-            --divider: #2d2d2d;
+            /* * ----------------------------------------------------------------------------
+             * 1.2 CHAT SYSTEM THEME (WHATSAPP/TELEGRAM HYBRID STYLE)
+             * ----------------------------------------------------------------------------
+             */
+            --color-chat-background: #0b141a;
+            --color-chat-incoming: #202c33;
+            --color-chat-outgoing: #005c4b;
+            --color-chat-bubble-text: #e9edef;
+            --color-chat-meta: #8696a0;
+            --color-chat-input-area: #202c33;
+            --color-chat-input-field: #2a3942;
+            
+            /* * ----------------------------------------------------------------------------
+             * 1.3 SPACING & LAYOUT SYSTEM
+             * ----------------------------------------------------------------------------
+             */
+            --spacing-unit: 4px;
+            --spacing-xs: calc(var(--spacing-unit) * 1);   /* 4px */
+            --spacing-sm: calc(var(--spacing-unit) * 2);   /* 8px */
+            --spacing-md: calc(var(--spacing-unit) * 4);   /* 16px */
+            --spacing-lg: calc(var(--spacing-unit) * 6);   /* 24px */
+            --spacing-xl: calc(var(--spacing-unit) * 8);   /* 32px */
+            --spacing-xxl: calc(var(--spacing-unit) * 12); /* 48px */
 
-            /* --- Shadow Effects --- */
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
-            --shadow-lg: 0 10px 25px rgba(0,0,0,0.5);
-            --shadow-xl: 0 20px 40px rgba(0,0,0,0.6);
+            --dim-control-bar-height: 88px;
+            --dim-sidebar-width: 380px;
+            --dim-modal-max-width: 600px;
+            --dim-video-aspect-ratio: 16/9;
 
-            /* --- Spacing & Layout Dimensions --- */
-            --control-bar-height: 84px;
-            --sidebar-width: 420px;
-            --sidebar-width-mobile: 100%;
-            --modal-max-width: 560px;
-            --spacing-xs: 4px;
-            --spacing-sm: 8px;
-            --spacing-md: 16px;
-            --spacing-lg: 24px;
-            --spacing-xl: 32px;
-
-            /* --- Border Radius --- */
-            --radius-sm: 6px;
+            /* * ----------------------------------------------------------------------------
+             * 1.4 BORDER RADIUS
+             * ----------------------------------------------------------------------------
+             */
+            --radius-xs: 4px;
+            --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 24px;
-            --radius-full: 9999px;
+            --radius-round: 50%;
+            --radius-pill: 9999px;
 
-            /* --- Z-Index Layers --- */
-            --z-base: 1;
-            --z-dropdown: 50;
-            --z-sticky: 100;
-            --z-fixed: 200;
-            --z-modal-backdrop: 500;
-            --z-modal: 600;
-            --z-popover: 700;
-            --z-tooltip: 800;
-            --z-toast: 1000;
+            /* * ----------------------------------------------------------------------------
+             * 1.5 Z-INDEX LAYERING
+             * ----------------------------------------------------------------------------
+             */
+            --z-layer-background: 0;
+            --z-layer-video: 10;
+            --z-layer-ui-base: 100;
+            --z-layer-controls: 200;
+            --z-layer-sidebar: 300;
+            --z-layer-modal-backdrop: 400;
+            --z-layer-modal: 500;
+            --z-layer-popover: 600;
+            --z-layer-tooltip: 700;
+            --z-layer-toast: 800;
+            --z-layer-overlay-max: 9999;
 
-            /* --- Transition Timings --- */
-            --transition-fast: 150ms;
-            --transition-base: 250ms;
-            --transition-slow: 350ms;
-            --transition-slower: 500ms;
-
-            /* --- Animation Curves --- */
-            --ease-in-out: cubic-bezier(0.4, 0.0, 0.2, 1);
-            --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
-            --ease-in: cubic-bezier(0.4, 0.0, 1, 1);
-            --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            /* * ----------------------------------------------------------------------------
+             * 1.6 ANIMATION TIMING
+             * ----------------------------------------------------------------------------
+             */
+            --transition-fast: 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
+            --transition-normal: 250ms cubic-bezier(0.4, 0.0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0.0, 0.2, 1);
+            --transition-bounce: 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            /* * ----------------------------------------------------------------------------
+             * 1.7 SHADOWS
+             * ----------------------------------------------------------------------------
+             */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            --shadow-glow-primary: 0 0 15px rgba(138, 180, 248, 0.3);
+            --shadow-glow-danger: 0 0 15px rgba(234, 67, 53, 0.3);
         }
 
-        /* =======================================================================
-           2. GLOBAL RESET & BASE STYLES
-           ======================================================================= */
-        * {
+        /* * ================================================================================================
+         * SECTION 2: CSS RESET & BASE TYPOGRAPHY
+         * ================================================================================================
+         */
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             -webkit-tap-highlight-color: transparent;
-        }
-
-        *:focus {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
         }
 
         html {
             font-size: 16px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            height: 100%;
+            overflow: hidden; /* Prevent elastic scrolling on Mac */
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-primary);
-            height: 100vh;
-            width: 100vw;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg-app);
+            color: var(--color-text-high-emphasis);
+            height: 100%;
+            width: 100%;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             line-height: 1.5;
         }
 
-        /* Custom Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--color-text-high-emphasis);
+            margin-bottom: var(--spacing-sm);
         }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
+        p {
+            margin-bottom: var(--spacing-md);
+            color: var(--color-text-medium-emphasis);
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            transition: background var(--transition-fast);
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            outline: none;
+            background: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+        input, textarea, select {
+            font-family: inherit;
+            color: inherit;
         }
 
-        /* Selection Styling */
-        ::selection {
-            background: var(--primary);
-            color: #000;
+        /* Focus Visibility */
+        :focus-visible {
+            outline: 2px solid var(--color-brand-primary);
+            outline-offset: 2px;
         }
 
         /* Utility Classes */
         .hidden { display: none !important; }
         .invisible { visibility: hidden !important; }
-        .pointer { cursor: pointer; }
-        .no-select { user-select: none; }
-        .truncate {
+        .sr-only {
+            position: absolute;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        .text-ellipsis {
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
-        /* =======================================================================
-           3. MAIN APPLICATION LAYOUT
-           ======================================================================= */
-        #app-container {
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* * ================================================================================================
+         * SECTION 3: LAYOUT STRUCTURE
+         * ================================================================================================
+         */
+        
+        /* Main Application Wrapper */
+        .app-layout {
             display: flex;
-            flex: 1;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
             position: relative;
-            height: calc(100vh - var(--control-bar-height));
-            overflow: hidden;
-            background: var(--bg-main);
+            background-color: var(--color-bg-app);
         }
 
-        /* Main Video Stage Area */
-        #main-stage {
+        /* The Main Stage (Contains Video Grid + Screen Share) */
+        .stage-container {
             flex: 1;
             position: relative;
-            background: #000;
+            display: flex;
+            overflow: hidden;
+            height: calc(100vh - var(--dim-control-bar-height));
+        }
+
+        /* The Viewport Area */
+        .video-viewport {
+            flex: 1;
+            position: relative;
+            background-color: var(--color-bg-stage);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all var(--transition-base) var(--ease-in-out);
-            overflow: hidden;
+            padding: var(--spacing-md);
+            transition: all var(--transition-normal);
         }
 
-        /* Stage Background Pattern (Optional) */
-        #main-stage::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 50% 50%, rgba(138, 180, 248, 0.03) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
+        /* * ================================================================================================
+         * SECTION 4: VIDEO GRID SYSTEM (COMPLEX LAYOUT LOGIC)
+         * ================================================================================================
+         */
 
-        /* =======================================================================
-           4. VIDEO GRID & PARTICIPANT CARDS SYSTEM
-           ======================================================================= */
-
-        /* Normal Grid Layout (Default - No Screen Share) */
-        #video-grid {
+        /* Grid Container */
+        .grid-layout {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
+            align-content: center;
             align-items: center;
             gap: 16px;
             width: 100%;
             height: 100%;
-            padding: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
             overflow-y: auto;
-            overflow-x: hidden;
             position: relative;
-            z-index: var(--z-base);
-            transition: all var(--transition-base) var(--ease-in-out);
+            z-index: var(--z-layer-video);
+            transition: all var(--transition-normal);
         }
 
-        /* Individual Video Card */
+        /* Individual Video Card Component */
         .video-card {
             position: relative;
-            background: var(--bg-panel);
+            background-color: var(--color-bg-panel);
             border-radius: var(--radius-md);
             overflow: hidden;
-            aspect-ratio: 16 / 9;
-            width: calc(50% - 8px);
-            max-width: 640px;
-            min-width: 280px;
-            transition: all var(--transition-base) var(--ease-in-out);
             box-shadow: var(--shadow-md);
-            border: 2px solid transparent;
+            border: 1px solid var(--color-border-subtle);
+            transition: all var(--transition-normal);
+            
+            /* Default Sizing Logic (2x2 Grid assumed for this demo) */
+            flex: 0 0 calc(50% - 16px);
+            aspect-ratio: 16/9;
+            max-height: 45vh;
+            min-width: 300px;
         }
 
+        /* Hover State for Video Card */
         .video-card:hover {
-            border-color: var(--primary);
+            border-color: var(--color-border-medium);
             box-shadow: var(--shadow-lg);
-            transform: scale(1.02);
+            transform: scale(1.005);
         }
 
-        /* Video Element Inside Card */
-        .video-card video {
+        /* Active Speaker Highlight */
+        .video-card.is-speaking {
+            border-color: var(--color-brand-primary);
+            box-shadow: 0 0 0 2px var(--color-brand-primary);
+        }
+
+        /* The Video Element */
+        .video-stream {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            background-color: #111;
             display: block;
         }
 
-        /* Placeholder for No Video */
+        /* Video Placeholder (Avatar) when camera is off */
         .video-placeholder {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1f1f1f 0%, #252525 100%);
+            z-index: 2;
+        }
+        
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            gap: 12px;
-            color: var(--text-tertiary);
+            font-size: 2rem;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-md);
         }
 
-        .video-placeholder i {
-            font-size: 4rem;
-            opacity: 0.5;
+        .video-placeholder.hidden {
+            display: none;
         }
 
-        .video-placeholder span {
-            font-size: 1.1rem;
-            font-weight: 500;
+        /* * ----------------------------------------------------------------------------
+         * 4.1 VIDEO CARD OVERLAYS
+         * ----------------------------------------------------------------------------
+         */
+        
+        /* Gradient Overlay for better text readability */
+        .card-gradient-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            pointer-events: none;
+            z-index: 5;
         }
 
-        /* User Info Label Overlay */
-        .user-label {
+        /* User Name Label */
+        .user-identity {
             position: absolute;
             bottom: 12px;
             left: 12px;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(8px);
-            padding: 6px 14px;
-            border-radius: var(--radius-sm);
-            font-size: 0.875rem;
-            font-weight: 600;
-            pointer-events: none;
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--text-primary);
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-fast);
+            z-index: 6;
+            max-width: 80%;
         }
 
-        .video-card:hover .user-label {
-            background: rgba(0, 0, 0, 0.85);
-        }
-
-        /* Mute/Status Icons */
-        .mute-status {
-            color: var(--danger);
-            font-size: 0.875rem;
-        }
-
-        .speaking-indicator {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-
-        /* Pinned/Spotlight Indicator */
-        .pinned-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: var(--primary);
-            color: #000;
+        .user-name-pill {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             padding: 4px 10px;
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: var(--shadow-md);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        /* Connection Quality Indicator */
-        .connection-quality {
+        /* Status Icons inside Name Pill */
+        .status-icon {
+            font-size: 0.75rem;
+        }
+        .status-icon.muted { color: var(--color-status-danger); }
+        .status-icon.hand-raised { color: var(--color-status-warning); }
+
+        /* Connection Quality Bars */
+        .connection-indicator {
             position: absolute;
             top: 12px;
             left: 12px;
             display: flex;
             gap: 2px;
-        }
-
-        .quality-bar {
-            width: 3px;
+            align-items: flex-end;
             height: 12px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 2px;
+            z-index: 6;
         }
 
-        .quality-bar.active {
-            background: var(--success);
+        .signal-bar {
+            width: 3px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 1px;
         }
+        .signal-bar:nth-child(1) { height: 4px; }
+        .signal-bar:nth-child(2) { height: 7px; }
+        .signal-bar:nth-child(3) { height: 10px; }
+        .signal-bar:nth-child(4) { height: 12px; }
 
-        /* =======================================================================
-           5. SCREEN SHARE MODE LAYOUT (ZOOM-STYLE)
-           ======================================================================= */
+        .connection-good .signal-bar { background-color: var(--color-status-success); }
+        .connection-poor .signal-bar:nth-child(3), 
+        .connection-poor .signal-bar:nth-child(4) { background-color: rgba(255, 255, 255, 0.3); }
+        .connection-poor .signal-bar:nth-child(1), 
+        .connection-poor .signal-bar:nth-child(2) { background-color: var(--color-status-warning); }
 
-        /* Screen Share Container (Full Background) */
-        #screen-share-view {
+        /* Pinned Indicator */
+        .pin-indicator {
             position: absolute;
-            inset: 0;
-            z-index: 5;
+            top: 12px;
+            right: 12px;
+            background-color: var(--color-brand-primary);
+            color: black;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            box-shadow: var(--shadow-sm);
+            z-index: 6;
             display: none;
-            background: #000;
-            transition: opacity var(--transition-base);
         }
+        .video-card.is-pinned .pin-indicator { display: block; }
 
-        #screen-share-view.active {
-            display: block;
-        }
-
-        #screen-share-video {
+        /* * ================================================================================================
+         * SECTION 5: SCREEN SHARE MODE (ZOOM STYLE LAYOUT)
+         * ================================================================================================
+         */
+        
+        /* The Container for the Shared Screen Content */
+        .screen-share-surface {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
+            background-color: #121212;
+            z-index: 5; /* Below UI, above normal grid */
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .screen-share-surface.active {
+            display: flex;
+        }
+
+        .screen-video-element {
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
         }
 
-        /* Screen Share Info Banner */
+        /* Banner indicating who is sharing */
         .sharing-banner {
             position: absolute;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            padding: 10px 24px;
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--text-primary);
-            font-weight: 500;
-            box-shadow: var(--shadow-lg);
-            z-index: 10;
-        }
-
-        .sharing-banner i {
-            color: var(--primary);
-            font-size: 1.25rem;
-        }
-
-        /* Participant Strip During Screen Share */
-        #main-stage.is-sharing #video-grid {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 300px;
-            max-height: calc(100vh - var(--control-bar-height) - 40px);
-            display: flex;
-            flex-direction: column;
-            flex-wrap: nowrap;
-            gap: 12px;
-            padding: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
-            z-index: 20;
-            background: transparent;
-        }
-
-        #main-stage.is-sharing .video-card {
-            width: 100%;
-            height: 168px;
-            min-width: unset;
-            aspect-ratio: auto;
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            box-shadow: var(--shadow-xl);
-        }
-
-        #main-stage.is-sharing .video-card:hover {
-            border-color: var(--primary);
-            transform: scale(1.05);
-        }
-
-        /* =======================================================================
-           6. CONTROL BAR (BOTTOM) - PROFESSIONAL DESIGN
-           ======================================================================= */
-        #controls-bar {
-            height: var(--control-bar-height);
-            background: var(--bg-control-bar);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 24px;
-            z-index: var(--z-fixed);
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Left Section (Meeting Info) */
-        .controls-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            min-width: 200px;
-            color: var(--text-secondary);
-        }
-
-        .meeting-time {
-            font-family: 'Roboto Mono', monospace;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text-primary);
+            background-color: rgba(30, 30, 30, 0.9);
+            padding: 8px 16px;
+            border-radius: var(--radius-pill);
+            color: white;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .meeting-time i {
-            color: var(--success);
-            font-size: 0.75rem;
-            animation: blink 2s ease-in-out infinite;
-        }
-
-        @keyframes blink {
-            0%, 50%, 100% { opacity: 1; }
-            25%, 75% { opacity: 0.3; }
-        }
-
-        .meeting-code {
-            background: var(--bg-panel);
-            padding: 6px 14px;
-            border-radius: var(--radius-sm);
-            font-family: 'Roboto Mono', monospace;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--primary);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            border: 1px solid var(--border-color);
-        }
-
-        .meeting-code:hover {
-            background: var(--bg-panel-elevated);
-            border-color: var(--primary);
-            transform: translateY(-1px);
-        }
-
-        /* Center Section (Primary Actions) */
-        .controls-center {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        /* Action Button Base Style */
-        .action-btn {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            border: none;
-            background: var(--bg-button);
-            color: var(--text-primary);
-            font-size: 1.25rem;
-            cursor: pointer;
-            transition: all var(--transition-fast) var(--ease-out);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .action-btn:hover {
-            background: var(--bg-button-hover);
-            transform: translateY(-3px);
             box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-brand-primary);
+            z-index: 20;
         }
 
-        .action-btn:active {
-            transform: translateY(-1px);
-        }
-
-        /* Active State (Feature Enabled) */
-        .action-btn.is-active {
-            background: var(--primary);
-            color: #000;
-        }
-
-        .action-btn.is-active:hover {
-            background: var(--primary-hover);
-        }
-
-        /* Danger State (Muted/Off) */
-        .action-btn.is-danger {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        .action-btn.is-danger:hover {
-            background: var(--danger-hover);
-        }
-
-        /* End Call Button (Special Styling) */
-        .btn-end-call {
-            width: 64px;
-            border-radius: var(--radius-full);
-            background: var(--danger);
-            font-size: 1.3rem;
-        }
-
-        .btn-end-call:hover {
-            background: var(--danger-hover);
-            box-shadow: 0 0 20px rgba(234, 67, 53, 0.5);
-        }
-
-        /* Button Tooltips */
-        .action-btn::after {
-            content: attr(data-tooltip);
+        /* * ----------------------------------------------------------------------------
+         * 5.1 LAYOUT SHIFT LOGIC
+         * When .mode-sharing is applied to the viewport, the grid transforms
+         * into a vertical strip on the right side.
+         * ----------------------------------------------------------------------------
+         */
+        .video-viewport.mode-sharing .grid-layout {
             position: absolute;
-            bottom: 110%;
-            left: 50%;
-            transform: translateX(-50%) scale(0);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 6px 12px;
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transition: all var(--transition-fast);
-            z-index: var(--z-tooltip);
-        }
-
-        .action-btn:hover::after {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
-        }
-
-        /* Right Section (Secondary Actions) */
-        .controls-right {
+            top: 20px;
+            right: 20px;
+            width: 280px;           /* Fixed narrow width */
+            height: calc(100% - 40px);
             display: flex;
+            flex-direction: column; /* Vertical Stack */
+            flex-wrap: nowrap;      /* Prevent wrapping */
+            justify-content: flex-start;
             gap: 12px;
-            align-items: center;
-            justify-content: flex-end;
-            min-width: 200px;
+            z-index: 30;            /* Above screen share */
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;     /* Space for scrollbar */
         }
 
-        /* Notification Badge on Buttons */
-        .action-btn .notification-badge {
+        /* Adjust Video Cards within the Strip */
+        .video-viewport.mode-sharing .video-card {
+            flex: 0 0 auto;         /* Don't grow/shrink */
+            width: 100%;
+            height: 160px;          /* Fixed height */
+            aspect-ratio: auto;
+            min-width: 0;
+            border-width: 2px;
+            border-color: rgba(255,255,255,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        /* Hide local user in strip if preferred (optional) */
+        /* .video-viewport.mode-sharing #local-card { display: none; } */
+
+        /* * ================================================================================================
+         * SECTION 6: SIDEBAR (CHAT & PARTICIPANTS)
+         * ================================================================================================
+         */
+        
+        .sidebar-drawer {
             position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 18px;
-            height: 18px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            font-size: 0.65rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--bg-control-bar);
-            animation: bounceIn 0.5s var(--ease-bounce);
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        /* =======================================================================
-           7. SIDEBAR SYSTEM (CHAT, PARTICIPANTS, SETTINGS)
-           ======================================================================= */
-        #sidebar {
-            width: var(--sidebar-width);
-            background: var(--bg-panel);
-            border-left: 1px solid var(--border-color);
-            position: absolute;
-            right: -100%;
             top: 0;
+            right: -100%; /* Hidden off-canvas */
+            width: var(--dim-sidebar-width);
             height: 100%;
-            transition: right var(--transition-base) var(--ease-in-out);
+            background-color: var(--color-bg-panel);
+            border-left: 1px solid var(--color-border-subtle);
+            z-index: var(--z-layer-sidebar);
             display: flex;
             flex-direction: column;
-            z-index: var(--z-fixed);
-            box-shadow: var(--shadow-xl);
+            transition: right var(--transition-slow);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
         }
 
-        #sidebar.open {
+        .sidebar-drawer.is-open {
             right: 0;
         }
 
         /* Sidebar Header */
         .sidebar-header {
-            padding: 20px 24px;
-            background: var(--bg-panel-elevated);
+            height: 72px;
+            padding: 0 var(--spacing-lg);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            min-height: 70px;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--color-border-subtle);
+            background-color: var(--color-bg-elevated);
         }
 
         .sidebar-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-text-high-emphasis);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .sidebar-title i {
-            color: var(--primary);
+        .close-sidebar-btn {
+            color: var(--color-text-low-emphasis);
+            padding: 8px;
+            border-radius: var(--radius-round);
+            transition: all 0.2s;
+        }
+        .close-sidebar-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
         }
 
-        /* Tab Navigation in Sidebar */
+        /* Tab Navigation within Sidebar */
         .sidebar-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
+            border-bottom: 1px solid var(--color-border-subtle);
+            background-color: var(--color-bg-panel);
         }
 
-        .sidebar-tab {
+        .sidebar-tab-btn {
             flex: 1;
-            padding: 10px 16px;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-weight: 600;
+            padding: 12px;
             font-size: 0.9rem;
-            cursor: pointer;
+            font-weight: 500;
+            color: var(--color-text-low-emphasis);
             border-bottom: 2px solid transparent;
-            transition: all var(--transition-fast);
+            transition: all 0.2s;
         }
 
-        .sidebar-tab:hover {
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.05);
+        .sidebar-tab-btn:hover {
+            background-color: var(--color-bg-panel-hover);
+            color: var(--color-text-high-emphasis);
         }
 
-        .sidebar-tab.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
+        .sidebar-tab-btn.active {
+            color: var(--color-brand-primary);
+            border-bottom-color: var(--color-brand-primary);
         }
 
-        /* Close Button */
-        .close-sidebar-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 1.5rem;
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition-fast);
-        }
-
-        .close-sidebar-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-        }
-
-        /* Sidebar Content Panels */
+        /* Sidebar Content Container */
         .sidebar-content {
             flex: 1;
+            position: relative;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            background: var(--chat-bg);
-            background-image:
-                linear-gradient(rgba(11, 20, 26, 0.95), rgba(11, 20, 26, 0.95)),
-                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.02) 10px, rgba(255,255,255,.02) 20px);
         }
 
-        .sidebar-panel {
-            flex: 1;
+        .tab-pane {
             display: none;
+            flex: 1;
             flex-direction: column;
             overflow: hidden;
         }
-
-        .sidebar-panel.active {
+        .tab-pane.active {
             display: flex;
         }
 
-        /* =======================================================================
-           8. CHAT SYSTEM (WhatsApp-Inspired Design)
-           ======================================================================= */
-        #chat-feed {
+        /* * ----------------------------------------------------------------------------
+         * 6.1 CHAT UI IMPLEMENTATION
+         * ----------------------------------------------------------------------------
+         */
+        
+        .chat-layout {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--color-chat-background);
+            /* SVG Pattern Background for Chat */
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' /%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .chat-messages {
             flex: 1;
             overflow-y: auto;
-            overflow-x: hidden;
-            padding: 20px;
+            padding: var(--spacing-lg);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
-        /* Chat Message Bubbles */
+        /* Message Bubbles */
         .msg-bubble {
-            max-width: 75%;
-            padding: 10px 14px;
+            max-width: 85%;
+            padding: 8px 12px;
             border-radius: 8px;
-            font-size: 0.9375rem;
-            line-height: 1.5;
+            font-size: 0.92rem;
+            line-height: 1.4;
             position: relative;
-            box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
-            word-wrap: break-word;
-            animation: messageSlideIn 0.3s var(--ease-out);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes messageSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Incoming Messages */
         .msg-bubble.incoming {
             align-self: flex-start;
-            background: var(--msg-in-bg);
-            color: var(--msg-text);
-            border-top-left-radius: 2px;
+            background-color: var(--color-chat-incoming);
+            color: var(--color-chat-bubble-text);
+            border-top-left-radius: 0;
         }
 
-        /* Outgoing Messages */
         .msg-bubble.outgoing {
             align-self: flex-end;
-            background: var(--msg-out-bg);
-            color: var(--msg-text);
-            border-top-right-radius: 2px;
+            background-color: var(--color-chat-outgoing);
+            color: var(--color-chat-bubble-text);
+            border-top-right-radius: 0;
         }
 
-        /* System Messages */
-        .msg-bubble.system {
-            align-self: center;
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-secondary);
-            font-size: 0.8125rem;
-            padding: 6px 12px;
-            max-width: 90%;
-            text-align: center;
-        }
-
-        /* Message Sender Name */
         .msg-sender {
-            font-size: 0.8125rem;
-            color: var(--primary);
-            margin-bottom: 4px;
-            font-weight: 700;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-brand-primary);
+            margin-bottom: 2px;
         }
-
-        /* Message Content */
+        
         .msg-content {
-            margin-bottom: 4px;
+            word-wrap: break-word;
         }
 
-        /* Message Timestamp */
         .msg-time {
-            font-size: 0.6875rem;
-            color: var(--msg-time);
+            font-size: 0.65rem;
+            color: var(--color-chat-meta);
             text-align: right;
-            margin-top: 4px;
+            margin-top: 2px;
             display: flex;
             align-items: center;
             justify-content: flex-end;
             gap: 4px;
         }
 
-        /* Read Receipt Icons */
-        .msg-status {
-            font-size: 0.75rem;
-            color: var(--primary);
-        }
-
-        /* Message Reactions */
-        .msg-reactions {
-            position: absolute;
-            bottom: -12px;
-            right: 10px;
-            background: var(--bg-panel);
-            border-radius: var(--radius-full);
-            padding: 2px 8px;
-            font-size: 0.875rem;
-            display: flex;
-            gap: 4px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-        }
-
         /* Chat Input Area */
-        .chat-input-area {
-            padding: 16px 20px;
-            background: var(--bg-panel);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-        }
-
         .chat-input-wrapper {
-            flex: 1;
-            position: relative;
+            background-color: var(--color-chat-input-area);
+            padding: 12px 16px;
             display: flex;
             align-items: center;
-            background: var(--chat-input-bg);
-            border-radius: 24px;
-            border: 1px solid var(--chat-input-border);
-            transition: all var(--transition-fast);
-        }
-
-        .chat-input-wrapper:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.1);
+            gap: 12px;
+            border-top: 1px solid var(--color-border-subtle);
         }
 
         .chat-input {
             flex: 1;
-            background: transparent;
-            border: none;
-            padding: 12px 16px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 0.9375rem;
-            resize: none;
-            max-height: 120px;
-            outline: none;
+            background-color: var(--color-chat-input-field);
+            border: 1px solid transparent;
+            border-radius: 20px;
+            padding: 10px 16px;
+            color: white;
+            font-size: 0.95rem;
+            transition: all 0.2s;
         }
 
-        .chat-input::placeholder {
-            color: var(--msg-time);
+        .chat-input:focus {
+            border-color: var(--color-brand-primary);
         }
 
-        /* Input Action Buttons (Emoji, Attach) */
-        .input-action-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 8px;
-            font-size: 1.25rem;
-            transition: all var(--transition-fast);
+        .btn-chat-send {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-        }
-
-        .input-action-btn:hover {
-            color: var(--primary);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Send Button */
-        .chat-send-btn {
-            background: var(--primary);
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
+            background-color: var(--color-brand-primary);
             color: #000;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.125rem;
-            transition: all var(--transition-fast);
-            flex-shrink: 0;
+            transition: transform 0.2s;
         }
-
-        .chat-send-btn:hover {
-            background: var(--primary-hover);
+        
+        .btn-chat-send:hover {
             transform: scale(1.1);
         }
 
-        .chat-send-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* =======================================================================
-           9. PARTICIPANTS PANEL
-           ======================================================================= */
-        #participants-panel {
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .participants-count {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .participant-item {
-            display: flex;
+        /* * ================================================================================================
+         * SECTION 7: CONTROL BAR (BOTTOM)
+         * ================================================================================================
+         */
+        
+        .control-bar {
+            height: var(--dim-control-bar-height);
+            background-color: var(--color-bg-controls);
+            border-top: 1px solid var(--color-border-subtle);
+            display: grid;
+            grid-template-columns: 240px 1fr 240px; /* Left, Center, Right */
             align-items: center;
-            gap: 14px;
-            padding: 12px;
-            border-radius: var(--radius-md);
-            transition: all var(--transition-fast);
-            cursor: pointer;
+            padding: 0 var(--spacing-lg);
+            z-index: var(--z-layer-controls);
         }
 
-        .participant-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .participant-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        /* Left Info Block */
+        .cb-left {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            font-weight: 700;
-            font-size: 1.125rem;
-            color: #000;
-            flex-shrink: 0;
         }
-
-        .participant-info {
-            flex: 1;
-            min-width: 0;
+        .clock-display {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--color-text-high-emphasis);
         }
-
-        .participant-name {
-            font-weight: 600;
-            font-size: 0.9375rem;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .participant-status {
-            font-size: 0.8125rem;
-            color: var(--text-tertiary);
+        .meeting-code-display {
+            font-size: 0.8rem;
+            color: var(--color-text-low-emphasis);
             margin-top: 2px;
         }
 
-        .host-badge {
-            background: var(--warning);
-            color: #000;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.625rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .participant-actions {
+        /* Center Control Buttons */
+        .cb-center {
             display: flex;
-            gap: 6px;
-            opacity: 0;
-            transition: opacity var(--transition-fast);
+            justify-content: center;
+            gap: 16px;
         }
 
-        .participant-item:hover .participant-actions {
-            opacity: 1;
-        }
-
-        .participant-action-btn {
-            background: var(--bg-button);
-            border: none;
-            width: 32px;
-            height: 32px;
+        .control-btn {
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
-            color: var(--text-secondary);
-            cursor: pointer;
+            background-color: var(--color-btn-default);
+            color: var(--color-btn-text);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.875rem;
-            transition: all var(--transition-fast);
+            font-size: 1.25rem;
+            transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
         }
 
-        .participant-action-btn:hover {
-            background: var(--bg-button-hover);
-            color: var(--text-primary);
+        .control-btn:hover {
+            background-color: var(--color-btn-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
-        /* =======================================================================
-           10. SETTINGS PANEL
-           ======================================================================= */
-        #settings-panel {
-            padding: 24px;
-            overflow-y: auto;
+        /* Toggle States */
+        .control-btn.is-active {
+            background-color: var(--color-brand-primary);
+            color: #000;
+        }
+        .control-btn.is-danger {
+            background-color: var(--color-status-danger);
+            color: #fff;
+        }
+        .control-btn.is-danger:hover {
+            background-color: var(--color-status-danger-hover);
         }
 
-        .settings-section {
-            margin-bottom: 32px;
+        /* Tooltips */
+        .control-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: var(--z-layer-tooltip);
+        }
+        .control-btn:hover::after {
+            opacity: 1;
         }
 
-        .settings-section-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 16px;
+        /* End Call Button (Pill Shape) */
+        .btn-hangup {
+            width: auto;
+            padding: 0 24px;
+            border-radius: 30px;
+            background-color: var(--color-status-danger);
+            color: white;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
-        .settings-section-title i {
-            color: var(--primary);
+        .btn-hangup:hover {
+            background-color: var(--color-status-danger-hover);
         }
 
-        .setting-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .setting-item:last-child {
-            border-bottom: none;
-        }
-
-        .setting-label {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
-        }
-
-        .setting-name {
-            font-weight: 600;
-            font-size: 0.9375rem;
-            color: var(--text-primary);
-        }
-
-        .setting-description {
-            font-size: 0.8125rem;
-            color: var(--text-tertiary);
-            line-height: 1.4;
-        }
-
-        /* Toggle Switch */
-        .toggle-switch {
-            position: relative;
-            width: 48px;
-            height: 26px;
-            background: var(--bg-button);
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            transition: background var(--transition-fast);
-        }
-
-        .toggle-switch.active {
-            background: var(--primary);
-        }
-
-        .toggle-switch::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            transition: transform var(--transition-fast);
-        }
-
-        .toggle-switch.active::after {
-            transform: translateX(22px);
-        }
-
-        /* Select Dropdown */
-        .setting-select {
-            background: var(--bg-button);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 8px 12px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 0.9375rem;
-            cursor: pointer;
-            min-width: 160px;
-            transition: all var(--transition-fast);
-        }
-
-        .setting-select:hover {
-            border-color: var(--primary);
-        }
-
-        .setting-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.1);
-        }
-
-        /* =======================================================================
-           11. MODALS & OVERLAYS
-           ======================================================================= */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: var(--z-modal-backdrop);
-            animation: fadeIn 0.2s ease;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal {
-            background: var(--bg-panel);
-            border-radius: var(--radius-lg);
-            max-width: var(--modal-max-width);
-            width: 90%;
-            max-height: 85vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-xl);
-            animation: modalSlideUp 0.3s var(--ease-out);
-        }
-
-        @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .modal-header {
-            padding: 24px;
-            background: var(--bg-panel-elevated);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.375rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .modal-close-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 1.5rem;
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition-fast);
-        }
-
-        .modal-close-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-        }
-
-        .modal-body {
-            padding: 24px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .modal-footer {
-            padding: 20px 24px;
-            background: var(--bg-panel-elevated);
-            border-top: 1px solid var(--border-color);
+        /* Right Actions */
+        .cb-right {
             display: flex;
             justify-content: flex-end;
             gap: 12px;
         }
 
-        /* Modal Buttons */
-        .btn {
-            padding: 10px 24px;
-            border-radius: var(--radius-sm);
-            border: none;
-            font-family: inherit;
-            font-size: 0.9375rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+        .btn-hamburger {
+            background: transparent;
+            border: 1px solid var(--color-border-medium);
+            color: var(--color-text-high-emphasis);
+        }
+        .btn-hamburger.active {
+            background: var(--color-bg-panel-hover);
+            border-color: var(--color-brand-primary);
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: #000;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-secondary {
-            background: var(--bg-button);
-            color: var(--text-primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-button-hover);
-        }
-
-        /* =======================================================================
-           12. TOAST NOTIFICATIONS SYSTEM
-           ======================================================================= */
+        /* * ================================================================================================
+         * SECTION 8: MODALS & TOASTS
+         * ================================================================================================
+         */
+        
+        /* Toast Notification */
         .toast-container {
             position: fixed;
-            bottom: calc(var(--control-bar-height) + 20px);
+            bottom: 110px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: var(--z-toast);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+            z-index: var(--z-layer-toast);
             pointer-events: none;
         }
 
         .toast {
             background: rgba(30, 30, 30, 0.95);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
             color: white;
-            padding: 14px 24px;
-            border-radius: var(--radius-full);
-            font-size: 0.9375rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: var(--shadow-lg);
-            animation: toastSlideIn 0.3s var(--ease-out);
-            pointer-events: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        @keyframes toastSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .toast.success {
-            background: rgba(52, 168, 83, 0.95);
-        }
-
-        .toast.error {
-            background: rgba(234, 67, 53, 0.95);
-        }
-
-        .toast.warning {
-            background: rgba(251, 188, 4, 0.95);
-            color: #000;
-        }
-
-        .toast.info {
-            background: rgba(66, 133, 244, 0.95);
-        }
-
-        .toast i {
-            font-size: 1.125rem;
-        }
-
-        /* =======================================================================
-           13. REACTIONS & EMOJIS FLOATING ANIMATION
-           ======================================================================= */
-        .reaction-overlay {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: var(--z-popover);
-            overflow: hidden;
-        }
-
-        .floating-reaction {
-            position: absolute;
-            font-size: 3rem;
-            animation: floatUp 3s ease-out forwards;
-            pointer-events: none;
-        }
-
-        @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(0.5) rotate(0deg);
-            }
-            50% {
-                opacity: 1;
-                transform: translateY(-40vh) scale(1) rotate(180deg);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-80vh) scale(0.5) rotate(360deg);
-            }
-        }
-
-        /* =======================================================================
-           14. RESPONSIVE DESIGN - MOBILE & TABLET
-           ======================================================================= */
-        @media (max-width: 1024px) {
-            :root {
-                --sidebar-width: 360px;
-            }
-
-            .video-card {
-                width: calc(50% - 8px);
-            }
-
-            #main-stage.is-sharing #video-grid {
-                width: 240px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            :root {
-                --control-bar-height: 72px;
-                --sidebar-width: 100%;
-            }
-
-            #controls-bar {
-                padding: 0 12px;
-            }
-
-            .controls-left {
-                display: none;
-            }
-
-            .controls-center {
-                gap: 8px;
-                flex: 1;
-                justify-content: center;
-            }
-
-            .action-btn {
-                width: 44px;
-                height: 44px;
-                font-size: 1.125rem;
-            }
-
-            .btn-end-call {
-                width: 52px;
-            }
-
-            .controls-right {
-                min-width: auto;
-            }
-
-            .video-card {
-                width: 100%;
-                height: auto;
-                aspect-ratio: 4/3;
-            }
-
-            #main-stage.is-sharing #video-grid {
-                width: 140px;
-                right: 12px;
-                top: 12px;
-                max-height: calc(100vh - var(--control-bar-height) - 24px);
-            }
-
-            #main-stage.is-sharing .video-card {
-                height: 100px;
-            }
-
-            .modal {
-                width: 95%;
-                max-height: 90vh;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .action-btn::after {
-                display: none;
-            }
-
-            .meeting-code {
-                font-size: 0.75rem;
-                padding: 4px 10px;
-            }
-
-            .controls-center {
-                gap: 6px;
-            }
-
-            .action-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-            }
-
-            #main-stage.is-sharing #video-grid {
-                width: 100px;
-                gap: 8px;
-            }
-
-            #main-stage.is-sharing .video-card {
-                height: 75px;
-            }
-        }
-
-        /* =======================================================================
-           15. LOADING STATES & SPINNERS
-           ======================================================================= */
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* =======================================================================
-           16. EMOJI PICKER STYLE
-           ======================================================================= */
-        .emoji-picker {
-            position: absolute;
-            bottom: 70px;
-            right: 20px;
-            background: var(--bg-panel-elevated);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid var(--border-color);
-            display: none;
-            z-index: var(--z-popover);
-            animation: scaleIn 0.2s var(--ease-out);
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .emoji-picker.active {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 8px;
-            max-width: 320px;
-        }
-
-        .emoji-btn {
-            background: transparent;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: var(--radius-sm);
-            transition: all var(--transition-fast);
-        }
-
-        .emoji-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: scale(1.2);
-        }
-
-        /* =======================================================================
-           17. ADDITIONAL UTILITY STYLES
-           ======================================================================= */
-        .divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 16px 0;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 10px;
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .badge-primary {
-            background: var(--primary);
-            color: #000;
-        }
-
-        .badge-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .badge-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        /* Screen Recording Indicator */
-        .recording-indicator {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--danger);
-            color: white;
-            padding: 8px 20px;
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            font-size: 0.875rem;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 10px;
-            z-index: var(--z-fixed);
             box-shadow: var(--shadow-lg);
-            animation: recordingPulse 2s ease-in-out infinite;
+            border: 1px solid var(--color-border-subtle);
+            animation: slideUpFade 0.3s ease-out;
+            pointer-events: auto;
+        }
+        
+        .toast.success i { color: var(--color-status-success); }
+        .toast.error i { color: var(--color-status-danger); }
+        .toast.info i { color: var(--color-status-info); }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes recordingPulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.7);
+        /* Generic Modal Overlay */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            z-index: var(--z-layer-modal-backdrop);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--color-bg-panel);
+            width: 100%;
+            max-width: var(--dim-modal-max-width);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border-medium);
+            box-shadow: var(--shadow-xl);
+            transform: scale(0.95);
+            transition: transform 0.3s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-backdrop.open .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--color-border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--color-border-subtle);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: var(--color-bg-elevated);
+        }
+
+        /* * ================================================================================================
+         * SECTION 9: RESPONSIVE MEDIA QUERIES
+         * ================================================================================================
+         */
+        
+        /* Tablet Portrait & Large Mobile */
+        @media (max-width: 1024px) {
+            .control-bar {
+                grid-template-columns: 1fr;
+                height: auto;
+                padding: 12px;
+                gap: 12px;
             }
-            50% {
-                box-shadow: 0 0 0 10px rgba(234, 67, 53, 0);
+            .cb-left, .cb-right {
+                display: none; /* Simplify UI for smaller screens */
+            }
+            .cb-center {
+                justify-content: space-between;
+                width: 100%;
+            }
+            /* Move hamburger to center on mobile/tablet */
+            .cb-center .control-btn.mobile-only {
+                display: flex; 
+            }
+            
+            /* Sidebar takes full screen */
+            .sidebar-drawer {
+                width: 100%;
+            }
+
+            .video-viewport.mode-sharing .grid-layout {
+                width: 160px; /* Thinner strip */
+                right: 10px;
+            }
+            .video-viewport.mode-sharing .video-card {
+                height: 100px;
             }
         }
 
-        .recording-indicator::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background: white;
-            border-radius: 50%;
-            animation: blink 1.5s ease-in-out infinite;
-        }
-
-        /* Hand Raise Animation */
-        @keyframes handWave {
-            0%, 100% { transform: rotate(0deg); }
-            10%, 30%, 50%, 70%, 90% { transform: rotate(14deg); }
-            20%, 40%, 60%, 80% { transform: rotate(-8deg); }
-        }
-
-        .action-btn.hand-raised {
-            animation: handWave 2s ease-in-out infinite;
+        /* Mobile Phones */
+        @media (max-width: 600px) {
+            .control-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 1rem;
+            }
+            .btn-hangup span { display: none; } /* Icon only */
+            
+            .video-card {
+                flex: 0 0 100%; /* Stack videos vertically */
+                height: auto;
+                aspect-ratio: 4/3;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Main Application Container -->
-    <div id="app-container">
+    <svg style="display: none;">
+        <symbol id="icon-mic" viewBox="0 0 24 24"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path fill="currentColor" d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></symbol>
+        <symbol id="icon-mic-off" viewBox="0 0 24 24"><path fill="currentColor" d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 2.76 2.24 5 5 5 .52 0 1.03-.11 1.5-.3l4.1 4.1 1.27-1.27L4.27 3zM12 19c-2.76 0-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c-3.39-.49-6-3.39-6-6.92h-2z"/></symbol>
+        <symbol id="icon-video" viewBox="0 0 24 24"><path fill="currentColor" d="M15 8v8H5V8h10m1-2H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4V7c0-.55-.45-1-1-1z"/></symbol>
+        <symbol id="icon-video-off" viewBox="0 0 24 24"><path fill="currentColor" d="M21 6.5l-4 4V7c0-.55-.45-1-1-1H9.82L21 17.18V6.5zM3.27 2L2 3.27 4.73 6H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.21 0 .39-.08.54-.18L19.73 21 21 19.73 3.27 2z"/></symbol>
+        <symbol id="icon-share" viewBox="0 0 24 24"><path fill="currentColor" d="M20 18c1.1 0 1.99-.9 1.99-2L22 5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 5h16v10H4V5zm7 9h2v-4h3l-4-4-4 4h3z"/></symbol>
+        <symbol id="icon-hand" viewBox="0 0 24 24"><path fill="currentColor" d="M23 11a1 1 0 0 0-1-1 1 1 0 0 0-1 1v2.58c0 .26-.11.52-.29.71L17 18.05V5a2 2 0 0 0-4 0v6.29l-1.34-1.34c-.19-.19-.45-.29-.71-.29a1 1 0 0 0-.71.29l-.71.71 4.75 4.75c.78.78 2.05.78 2.83 0l1.41-1.41c.18-.18.29-.44.29-.71V11zM7 11a1 1 0 0 0-1-1 1 1 0 0 0-1 1v7c0 1.66 1.34 3 3 3h3v-2H8c-.55 0-1-.45-1-1v-6z"/></symbol>
+        <symbol id="icon-chat" viewBox="0 0 24 24"><path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
+        <symbol id="icon-menu" viewBox="0 0 24 24"><path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+        <symbol id="icon-send" viewBox="0 0 24 24"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></symbol>
+        <symbol id="icon-phone-slash" viewBox="0 0 24 24"><path fill="currentColor" d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.5 7.5 6.4 12 6.4c4.5 0 8.66 2.1 11.71 5.27.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></symbol>
+        <symbol id="icon-settings" viewBox="0 0 24 24"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol>
+    </svg>
 
-        <!-- Main Video Stage -->
-        <div id="main-stage">
-
-            <!-- Screen Share View (Zoom-Style Full Background) -->
-            <div id="screen-share-view">
-                <video id="screen-share-video" autoplay playsinline muted></video>
-                <div class="sharing-banner">
-                    <i class="fas fa-desktop"></i>
-                    <span><strong id="sharing-user-name">You</strong> are presenting</span>
-                </div>
-            </div>
-
-            <!-- Video Grid (Normal Layout or Side Strip During Screen Share) -->
-            <div id="video-grid">
-
-                <!-- Local User Video Card -->
-                <div class="video-card" id="local-user-card">
-                    <video id="local-video" autoplay playsinline muted style="transform: scaleX(-1);"></video>
-
-                    <!-- Connection Quality Indicator -->
-                    <div class="connection-quality">
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar"></div>
+    <div class="app-layout" id="appRoot">
+        
+        <main class="stage-container">
+            
+            <div class="video-viewport" id="viewport">
+                
+                <div class="screen-share-surface" id="screenShareLayer">
+                    <div class="sharing-banner">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-brand-primary)"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/></svg>
+                        <span><strong id="sharingUser">You</strong> are sharing your screen</span>
                     </div>
-
-                    <div class="user-label">
-                        <span>You (Host)</span>
-                        <i class="fas fa-microphone-slash mute-status hidden" id="local-mute-icon"></i>
-                    </div>
+                    <video id="screenVideoElement" class="screen-video-element" autoplay playsinline muted></video>
                 </div>
 
-                <!-- Remote Participant 1 -->
-                <div class="video-card">
-                    <div class="video-placeholder">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Alice Johnson</span>
-                    </div>
-                    <div class="connection-quality">
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar"></div>
-                        <div class="quality-bar"></div>
-                    </div>
-                    <div class="user-label">
-                        <div class="speaking-indicator"></div>
-                        <span>Alice Johnson</span>
-                    </div>
-                </div>
+                <div class="grid-layout" id="gridContainer">
+                    
+                    <div class="video-card is-speaking" id="localCard">
+                        <div class="video-placeholder hidden" id="localAvatar">
+                            <div class="avatar-circle">ME</div>
+                        </div>
+                        <video id="localVideo" class="video-stream" autoplay playsinline muted style="transform: scaleX(-1);"></video>
+                        
+                        <div class="card-gradient-overlay"></div>
+                        <div class="pin-indicator"><i class="fas fa-thumbtack"></i> Pinned</div>
+                        
+                        <div class="connection-indicator connection-good">
+                            <div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div>
+                        </div>
 
-                <!-- Remote Participant 2 -->
-                <div class="video-card">
-                    <div class="video-placeholder">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Robert Smith</span>
+                        <div class="user-identity">
+                            <div class="user-name-pill">
+                                You (Host)
+                                <span id="localMuteIcon" class="status-icon muted hidden"><i class="fas fa-microphone-slash"></i></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="connection-quality">
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar active"></div>
-                    </div>
-                    <div class="user-label">
-                        <span>Robert Smith</span>
-                        <i class="fas fa-microphone-slash mute-status"></i>
-                    </div>
-                </div>
 
-                <!-- Remote Participant 3 -->
-                <div class="video-card">
-                    <div class="video-placeholder">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Maria Garcia</span>
+                    <div class="video-card" id="remote1">
+                        <div class="video-placeholder">
+                            <div class="avatar-circle" style="background: linear-gradient(135deg, #FF512F, #DD2476);">JS</div>
+                        </div>
+                        <div class="card-gradient-overlay"></div>
+                        <div class="connection-indicator connection-good">
+                            <div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div>
+                        </div>
+                        <div class="user-identity">
+                            <div class="user-name-pill">
+                                John Smith (Director)
+                                <span class="status-icon hand-raised"><i class="fas fa-hand-paper"></i></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="connection-quality">
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar active"></div>
-                        <div class="quality-bar"></div>
+
+                     <div class="video-card" id="remote2">
+                        <div class="video-placeholder">
+                            <div class="avatar-circle" style="background: linear-gradient(135deg, #1D976C, #93F9B9);">AK</div>
+                        </div>
+                        
+                        <div class="card-gradient-overlay"></div>
+                        <div class="connection-indicator connection-poor">
+                            <div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div>
+                        </div>
+                        <div class="user-identity">
+                            <div class="user-name-pill">
+                                Anita Kapoor
+                                <span class="status-icon muted"><i class="fas fa-microphone-slash"></i></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="user-label">
-                        <span>Maria Garcia</span>
+
+                    <div class="video-card" id="remote3">
+                         <div class="video-placeholder">
+                            <div class="avatar-circle" style="background: linear-gradient(135deg, #1FA2FF, #12D8FA, #A6FFCB);">DR</div>
+                        </div>
+                        
+                        <div class="card-gradient-overlay"></div>
+                        <div class="user-identity">
+                            <div class="user-name-pill">Dev Relations</div>
+                        </div>
                     </div>
-                </div>
 
-            </div>
+                </div> </div>
+        </main>
 
-        </div>
-
-        <!-- Sidebar Panel (Chat, Participants, Settings) -->
-        <div id="sidebar">
+        <aside class="sidebar-drawer" id="sidebarPanel">
             <div class="sidebar-header">
                 <div class="sidebar-title">
-                    <i class="fas fa-comment-dots"></i>
-                    <span id="sidebar-title-text">Chat</span>
+                    <svg width="20" height="20"><use href="#icon-chat"/></svg> 
+                    <span>Meeting Chat</span>
                 </div>
-                <button class="close-sidebar-btn" onclick="toggleSidebar()">
-                    <i class="fas fa-times"></i>
+                <button class="close-sidebar-btn" onclick="UI.toggleSidebar()">
+                    <svg width="24" height="24"><use href="#icon-close"/></svg>
                 </button>
             </div>
 
-            <!-- Tab Navigation -->
-            <div style="padding: 16px 24px 0; background: var(--bg-panel-elevated);">
-                <div class="sidebar-tabs">
-                    <button class="sidebar-tab active" onclick="switchSidebarTab('chat')">
-                        <i class="fas fa-comment-alt"></i> Chat
-                    </button>
-                    <button class="sidebar-tab" onclick="switchSidebarTab('participants')">
-                        <i class="fas fa-users"></i> People
-                    </button>
-                    <button class="sidebar-tab" onclick="switchSidebarTab('settings')">
-                        <i class="fas fa-cog"></i> Settings
-                    </button>
-                </div>
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab-btn active" onclick="UI.switchTab('chat')">Chat</button>
+                <button class="sidebar-tab-btn" onclick="UI.switchTab('participants')">People (4)</button>
+                <button class="sidebar-tab-btn" onclick="UI.switchTab('settings')">Settings</button>
             </div>
 
-            <!-- Chat Panel -->
             <div class="sidebar-content">
-                <div class="sidebar-panel active" id="chat-panel">
-                    <div id="chat-feed">
-                        <div class="msg-bubble system">
-                            <i class="fas fa-shield-alt"></i> Welcome to Shailmann Connect. All messages are end-to-end encrypted.
-                        </div>
-                        <div class="msg-bubble incoming">
-                            <div class="msg-sender">Alice Johnson</div>
-                            <div class="msg-content">Hey everyone! Excited for this meeting 🚀</div>
-                            <div class="msg-time">10:30 AM</div>
-                        </div>
-                        <div class="msg-bubble outgoing">
-                            <div class="msg-content">Welcome Alice! Let's get started.</div>
-                            <div class="msg-time">
-                                10:31 AM
-                                <i class="fas fa-check-double msg-status"></i>
+                
+                <div id="tab-chat" class="tab-pane active">
+                    <div class="chat-layout">
+                        <div class="chat-messages" id="chatFeed">
+                            <div class="msg-bubble incoming">
+                                <div class="msg-sender">System</div>
+                                <div class="msg-content">Welcome to the meeting. Press "Share Screen" to present.</div>
+                                <div class="msg-time">10:00 AM</div>
+                            </div>
+                            <div class="msg-bubble incoming">
+                                <div class="msg-sender">John Smith</div>
+                                <div class="msg-content">Can you hear me clearly?</div>
+                                <div class="msg-time">10:02 AM</div>
                             </div>
                         </div>
-                        <div class="msg-bubble incoming">
-                            <div class="msg-sender">Robert Smith</div>
-                            <div class="msg-content">Sorry I'm late. Can you hear me okay?</div>
-                            <div class="msg-time">10:32 AM</div>
-                        </div>
-                    </div>
-
-                    <div class="chat-input-area">
-                        <button class="input-action-btn" onclick="toggleEmojiPicker()" title="Emoji">
-                            <i class="far fa-smile"></i>
-                        </button>
-                        <div class="chat-input-wrapper">
-                            <input
-                                type="text"
-                                id="chat-input"
-                                class="chat-input"
-                                placeholder="Send a message to everyone..."
-                                maxlength="500"
-                            >
-                        </div>
-                        <button class="input-action-btn" onclick="attachFile()" title="Attach File">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <button class="chat-send-btn" onclick="sendMessage()" title="Send">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Participants Panel -->
-                <div class="sidebar-panel" id="participants-panel">
-                    <div class="participants-count">
-                        <i class="fas fa-users"></i> 4 Participants in this meeting
-                    </div>
-
-                    <!-- Host -->
-                    <div class="participant-item">
-                        <div class="participant-avatar">Y</div>
-                        <div class="participant-info">
-                            <div class="participant-name">
-                                You (Host)
-                                <span class="host-badge">Host</span>
+                        <div class="chat-input-area">
+                            <div class="chat-input-wrapper">
+                                <input type="text" id="chatInput" class="chat-input" placeholder="Message everyone..." autocomplete="off">
+                                <button class="btn-chat-send" onclick="Chat.sendMessage()">
+                                    <svg width="20" height="20" style="color:#000;"><use href="#icon-send"/></svg>
+                                </button>
                             </div>
-                            <div class="participant-status">
-                                <i class="fas fa-microphone" style="color: var(--success);"></i>
-                                <i class="fas fa-video" style="color: var(--success);"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Participant 1 -->
-                    <div class="participant-item">
-                        <div class="participant-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">A</div>
-                        <div class="participant-info">
-                            <div class="participant-name">Alice Johnson</div>
-                            <div class="participant-status">
-                                <i class="fas fa-microphone" style="color: var(--success);"></i>
-                                <i class="fas fa-video-slash" style="color: var(--danger);"></i>
-                            </div>
-                        </div>
-                        <div class="participant-actions">
-                            <button class="participant-action-btn" title="Pin Video">
-                                <i class="fas fa-thumbtack"></i>
-                            </button>
-                            <button class="participant-action-btn" title="More Options">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Participant 2 -->
-                    <div class="participant-item">
-                        <div class="participant-avatar" style="background: linear-gradient(135deg, #f093fb, #f5576c);">R</div>
-                        <div class="participant-info">
-                            <div class="participant-name">
-                                Robert Smith
-                                <i class="fas fa-hand-paper" style="color: var(--warning); font-size: 0.875rem;" title="Hand Raised"></i>
-                            </div>
-                            <div class="participant-status">
-                                <i class="fas fa-microphone-slash" style="color: var(--danger);"></i>
-                                <i class="fas fa-video" style="color: var(--success);"></i>
-                            </div>
-                        </div>
-                        <div class="participant-actions">
-                            <button class="participant-action-btn" title="Pin Video">
-                                <i class="fas fa-thumbtack"></i>
-                            </button>
-                            <button class="participant-action-btn" title="More Options">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Participant 3 -->
-                    <div class="participant-item">
-                        <div class="participant-avatar" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">M</div>
-                        <div class="participant-info">
-                            <div class="participant-name">Maria Garcia</div>
-                            <div class="participant-status">
-                                <i class="fas fa-microphone" style="color: var(--success);"></i>
-                                <i class="fas fa-video" style="color: var(--success);"></i>
-                            </div>
-                        </div>
-                        <div class="participant-actions">
-                            <button class="participant-action-btn" title="Pin Video">
-                                <i class="fas fa-thumbtack"></i>
-                            </button>
-                            <button class="participant-action-btn" title="More Options">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Settings Panel -->
-                <div class="sidebar-panel" id="settings-panel">
-
-                    <!-- Audio Settings -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">
-                            <i class="fas fa-microphone"></i>
-                            Audio Settings
+                <div id="tab-participants" class="tab-pane">
+                    <div style="padding: 20px; color: #ccc;">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                            <div class="avatar-circle" style="width:32px; height:32px; font-size:12px;">ME</div>
+                            <div>You (Host)</div>
                         </div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                            <div class="avatar-circle" style="width:32px; height:32px; font-size:12px; background:#FF512F;">JS</div>
+                            <div>John Smith</div>
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Microphone</div>
-                                <div class="setting-description">Select your microphone device</div>
-                            </div>
-                            <select class="setting-select" id="mic-select">
-                                <option>Default - Built-in Microphone</option>
-                                <option>External USB Microphone</option>
-                                <option>Bluetooth Headset</option>
+                <div id="tab-settings" class="tab-pane">
+                    <div style="padding: 20px;">
+                        <h4 style="margin-bottom:15px;">Audio & Video</h4>
+                        <div style="margin-bottom:15px;">
+                            <label style="display:block; color:#999; margin-bottom:5px;">Microphone</label>
+                            <select style="width:100%; padding:8px; background:#333; color:white; border:1px solid #555; border-radius:4px;">
+                                <option>Default - MacBook Pro Mic</option>
                             </select>
                         </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Speaker</div>
-                                <div class="setting-description">Select your speaker device</div>
-                            </div>
-                            <select class="setting-select" id="speaker-select">
-                                <option>Default - Built-in Speakers</option>
-                                <option>External Speakers</option>
-                                <option>Bluetooth Headphones</option>
+                         <div style="margin-bottom:15px;">
+                            <label style="display:block; color:#999; margin-bottom:5px;">Camera</label>
+                            <select style="width:100%; padding:8px; background:#333; color:white; border:1px solid #555; border-radius:4px;">
+                                <option>FaceTime HD Camera</option>
                             </select>
                         </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Noise Cancellation</div>
-                                <div class="setting-description">Remove background noise from your audio</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Echo Cancellation</div>
-                                <div class="setting-description">Prevent audio feedback and echo</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                        </div>
-                    </div>
-
-                    <!-- Video Settings -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">
-                            <i class="fas fa-video"></i>
-                            Video Settings
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Camera</div>
-                                <div class="setting-description">Select your camera device</div>
-                            </div>
-                            <select class="setting-select" id="camera-select">
-                                <option>Default - Built-in Camera</option>
-                                <option>External Webcam</option>
-                                <option>Virtual Camera</option>
-                            </select>
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Video Quality</div>
-                                <div class="setting-description">Higher quality uses more bandwidth</div>
-                            </div>
-                            <select class="setting-select" id="quality-select">
-                                <option>Auto (Recommended)</option>
-                                <option>720p HD</option>
-                                <option>1080p Full HD</option>
-                                <option>360p</option>
-                            </select>
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Mirror My Video</div>
-                                <div class="setting-description">Flip your video horizontally</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">HD Video</div>
-                                <div class="setting-description">Enable high definition video</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                        </div>
-                    </div>
-
-                    <!-- General Settings -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">
-                            <i class="fas fa-sliders-h"></i>
-                            General
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Start with video off</div>
-                                <div class="setting-description">Always join meetings with camera off</div>
-                            </div>
-                            <div class="toggle-switch" onclick="toggleSetting(this)"></div>
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Start with audio muted</div>
-                                <div class="setting-description">Always join meetings muted</div>
-                            </div>
-                            <div class="toggle-switch" onclick="toggleSetting(this)"></div>
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Reactions</div>
-                                <div class="setting-description">Show emoji reactions during meeting</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-label">
-                                <div class="setting-name">Chat Notifications</div>
-                                <div class="setting-description">Play sound when receiving messages</div>
-                            </div>
-                            <div class="toggle-switch active" onclick="toggleSetting(this)"></div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- Bottom Control Bar -->
-    <div id="controls-bar">
-
-        <!-- Left Section - Meeting Info -->
-        <div class="controls-left">
-            <div class="meeting-time">
-                <i class="fas fa-circle"></i>
-                <span id="clock-display">12:00 PM</span>
-            </div>
-            <div class="meeting-code" onclick="copyMeetingCode()" title="Click to copy">
-                <i class="fas fa-link"></i> shail-meet-xl42k
-            </div>
-        </div>
-
-        <!-- Center Section - Primary Controls -->
-        <div class="controls-center">
-            <button class="action-btn" id="btn-mic" onclick="toggleMic()" data-tooltip="Toggle Microphone">
-                <i class="fas fa-microphone"></i>
-            </button>
-
-            <button class="action-btn" id="btn-cam" onclick="toggleCam()" data-tooltip="Toggle Camera">
-                <i class="fas fa-video"></i>
-            </button>
-
-            <button class="action-btn" onclick="toggleReactionPicker()" data-tooltip="Send Reaction">
-                <i class="far fa-smile"></i>
-            </button>
-
-            <button class="action-btn" id="btn-hand" onclick="toggleHand()" data-tooltip="Raise Hand">
-                <i class="far fa-hand-paper"></i>
-            </button>
-
-            <button class="action-btn" id="btn-share" onclick="toggleScreenShare()" data-tooltip="Share Screen">
-                <i class="fas fa-arrow-up-from-bracket"></i>
-            </button>
-
-            <button class="action-btn btn-end-call is-danger" onclick="confirmEndCall()" data-tooltip="Leave Meeting">
-                <i class="fas fa-phone-slash"></i>
-            </button>
-        </div>
-
-        <!-- Right Section - Secondary Controls -->
-        <div class="controls-right">
-            <button class="action-btn" onclick="switchSidebarTab('participants'); toggleSidebar();" data-tooltip="Participants">
-                <i class="fas fa-user-friends"></i>
-                <span class="notification-badge">4</span>
-            </button>
-
-            <button class="action-btn" id="btn-chat" onclick="switchSidebarTab('chat'); toggleSidebar();" data-tooltip="Chat">
-                <i class="fas fa-comment-alt"></i>
-            </button>
-
-            <button class="action-btn" id="menu-btn" onclick="toggleSidebar()" data-tooltip="Menu">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
-    </div>
-
-    <!-- Toast Notifications Container -->
-    <div class="toast-container" id="toast-box"></div>
-
-    <!-- Reaction Overlay for Floating Emojis -->
-    <div class="reaction-overlay" id="reaction-overlay"></div>
-
-    <!-- Emoji Picker for Reactions -->
-    <div class="emoji-picker" id="emoji-picker">
-        <button class="emoji-btn" onclick="sendReaction('👍')">👍</button>
-        <button class="emoji-btn" onclick="sendReaction('❤️')">❤️</button>
-        <button class="emoji-btn" onclick="sendReaction('😂')">😂</button>
-        <button class="emoji-btn" onclick="sendReaction('🎉')">🎉</button>
-        <button class="emoji-btn" onclick="sendReaction('👏')">👏</button>
-        <button class="emoji-btn" onclick="sendReaction('🔥')">🔥</button>
-        <button class="emoji-btn" onclick="sendReaction('😍')">😍</button>
-        <button class="emoji-btn" onclick="sendReaction('🤔')">🤔</button>
-        <button class="emoji-btn" onclick="sendReaction('😮')">😮</button>
-        <button class="emoji-btn" onclick="sendReaction('😢')">😢</button>
-        <button class="emoji-btn" onclick="sendReaction('🙏')">🙏</button>
-        <button class="emoji-btn" onclick="sendReaction('💯')">💯</button>
-        <button class="emoji-btn" onclick="sendReaction('✨')">✨</button>
-        <button class="emoji-btn" onclick="sendReaction('🚀')">🚀</button>
-        <button class="emoji-btn" onclick="sendReaction('💪')">💪</button>
-        <button class="emoji-btn" onclick="sendReaction('🤝')">🤝</button>
-    </div>
-
-    <!-- Modal for Meeting Info -->
-    <div class="modal-overlay" id="meeting-info-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 class="modal-title">Meeting Information</h2>
-                <button class="modal-close-btn" onclick="closeModal('meeting-info-modal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <div class="setting-name">Meeting ID</div>
-                        <div class="setting-description">shail-meet-xl42k</div>
-                    </div>
-                    <button class="btn btn-secondary" onclick="copyText('shail-meet-xl42k')">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                </div>
-                <div class="divider"></div>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <div class="setting-name">Meeting Link</div>
-                        <div class="setting-description">https://shailmann.meet/join/shail-meet-xl42k</div>
-                    </div>
-                    <button class="btn btn-secondary" onclick="copyText('https://shailmann.meet/join/shail-meet-xl42k')">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                </div>
-                <div class="divider"></div>
-                <div class="setting-item">
-                    <div class="setting-label">
-                        <div class="setting-name">Duration</div>
-                        <div class="setting-description" id="meeting-duration">15:23</div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('meeting-info-modal')">Close</button>
-                <button class="btn btn-primary" onclick="shareMeeting()">
-                    <i class="fas fa-share-alt"></i> Share Meeting
-                </button>
-            </div>
-        </div>
-    </div>
 
-    <!-- ========================================================================
-         COMPREHENSIVE JAVASCRIPT APPLICATION LOGIC
-         ======================================================================== -->
+            </div>
+        </aside>
+
+    </div> <footer class="control-bar">
+        
+        <div class="cb-left">
+            <div class="clock-display" id="clock">12:00 PM</div>
+            <div class="meeting-code-display">shail-meet-enterprise</div>
+        </div>
+
+        <div class="cb-center">
+            
+            <button class="control-btn" id="btnMic" onclick="Actions.toggleMic()" data-tooltip="Toggle Microphone (Ctrl+D)">
+                <svg width="24" height="24"><use href="#icon-mic"/></svg>
+            </button>
+
+            <button class="control-btn" id="btnCam" onclick="Actions.toggleCam()" data-tooltip="Toggle Camera (Ctrl+E)">
+                <svg width="24" height="24"><use href="#icon-video"/></svg>
+            </button>
+
+            <button class="control-btn" id="btnShare" onclick="Actions.toggleShare()" data-tooltip="Share Screen">
+                <svg width="24" height="24"><use href="#icon-share"/></svg>
+            </button>
+
+            <button class="control-btn" id="btnHand" onclick="Actions.toggleHand()" data-tooltip="Raise Hand">
+                <svg width="24" height="24"><use href="#icon-hand"/></svg>
+            </button>
+            
+            <button class="control-btn mobile-only" onclick="UI.toggleSidebar()" style="display:none;">
+                <svg width="24" height="24"><use href="#icon-chat"/></svg>
+            </button>
+
+            <button class="btn-hangup" onclick="Actions.endCall()">
+                <svg width="24" height="24" style="color:white;"><use href="#icon-phone-slash"/></svg>
+                <span>End Call</span>
+            </button>
+        </div>
+
+        <div class="cb-right">
+            <button class="control-btn" onclick="alert('Invite')" data-tooltip="Invite People">
+                <svg width="24" height="24"><use href="#icon-users"/></svg>
+            </button>
+            
+            <button class="control-btn" onclick="alert('Settings')" data-tooltip="Settings">
+                <svg width="24" height="24"><use href="#icon-settings"/></svg>
+            </button>
+
+            <button class="control-btn btn-hamburger" id="btnHamburger" onclick="UI.toggleSidebar()" data-tooltip="Chat & Activities">
+                <svg width="24" height="24"><use href="#icon-menu"/></svg>
+            </button>
+        </div>
+
+    </footer>
+
+    <div id="toastContainer" class="toast-container"></div>
+
     <script>
-        // ========================================================================
-        // 1. APPLICATION STATE MANAGEMENT
-        // ========================================================================
-        const appState = {
-            // Media States
-            micOn: true,
-            camOn: true,
-            sharing: false,
+        /**
+         * Shailmann Connect - Client Logic
+         * Handles: MediaDevices, WebRTC (Mock), UI State, Chat, and Layout Engine.
+         */
+        
+        // --- 1. GLOBAL STATE STORE ---
+        const Store = {
+            state: {
+                isMicOn: true,
+                isCamOn: true,
+                isSharing: false,
+                isHandRaised: false,
+                isSidebarOpen: false,
+                activeTab: 'chat',
+                participants: 4
+            },
+            
+            // DOM Cache
+            dom: {
+                localVideo: document.getElementById('localVideo'),
+                screenVideo: document.getElementById('screenVideoElement'),
+                screenLayer: document.getElementById('screenShareLayer'),
+                viewport: document.getElementById('viewport'),
+                sidebar: document.getElementById('sidebarPanel'),
+                clock: document.getElementById('clock'),
+                toastContainer: document.getElementById('toastContainer')
+            }
+        };
 
-            // UI States
-            sidebarOpen: false,
-            currentSidebarTab: 'chat',
-            handRaised: false,
-            emojiPickerOpen: false,
+        // --- 2. UTILITY MODULES ---
 
-            // Meeting Data
-            participants: [],
-            messages: [],
-            reactions: [],
-
-            // Settings
-            settings: {
-                noiseCancellation: true,
-                echoCancellation: true,
-                mirrorVideo: true,
-                hdVideo: true,
-                autoMute: false,
-                autoVideoOff: false,
-                reactions: true,
-                chatNotifications: true
+        const Utils = {
+            /** Updates the digital clock */
+            startClock: () => {
+                setInterval(() => {
+                    const now = new Date();
+                    Store.dom.clock.innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                }, 1000);
             },
 
-            // Streams
-            localStream: null,
-            screenStream: null,
+            /** Shows a toast notification */
+            toast: (msg, type = 'info') => {
+                const el = document.createElement('div');
+                el.className = `toast ${type}`;
+                let iconHTML = '';
+                
+                if(type === 'success') iconHTML = '<i class="fas fa-check-circle" style="color:var(--color-status-success)"></i>';
+                else if(type === 'error') iconHTML = '<i class="fas fa-exclamation-circle" style="color:var(--color-status-danger)"></i>';
+                else iconHTML = '<i class="fas fa-info-circle" style="color:var(--color-status-info)"></i>';
 
-            // Timers
-            meetingStartTime: Date.now(),
-            clockInterval: null,
-            durationInterval: null
+                el.innerHTML = `${iconHTML}<span>${msg}</span>`;
+                Store.dom.toastContainer.appendChild(el);
+
+                // Auto remove
+                setTimeout(() => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(20px)';
+                    setTimeout(() => el.remove(), 300);
+                }, 3000);
+            }
         };
 
-        // ========================================================================
-        // 2. INITIALIZATION & SETUP
-        // ========================================================================
+        // --- 3. UI CONTROLLER ---
 
-        /**
-         * Initialize the application when DOM is loaded
-         */
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Shailmann Connect - Initializing...');
-
-            // Start clock
-            startClock();
-
-            // Initialize local video
-            initializeLocalMedia();
-
-            // Setup keyboard shortcuts
-            setupKeyboardShortcuts();
-
-            // Setup click outside listeners
-            setupClickOutsideListeners();
-
-            // Log initialization
-            showToast('Connected to meeting', 'success');
-            console.log('Application initialized successfully');
-        });
-
-        /**
-         * Start the clock display
-         */
-        function startClock() {
-            function updateClock() {
-                const now = new Date();
-                const timeString = now.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                });
-                document.getElementById('clock-display').textContent = timeString;
-            }
-
-            updateClock();
-            appState.clockInterval = setInterval(updateClock, 1000);
-        }
-
-        /**
-         * Initialize local media (camera and microphone)
-         */
-        async function initializeLocalMedia() {
-            try {
-                const constraints = {
-                    video: {
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
-                        facingMode: 'user'
-                    },
-                    audio: {
-                        echoCancellation: appState.settings.echoCancellation,
-                        noiseSuppression: appState.settings.noiseCancellation,
-                        autoGainControl: true
-                    }
-                };
-
-                appState.localStream = await navigator.mediaDevices.getUserMedia(constraints);
-
-                const localVideo = document.getElementById('local-video');
-                localVideo.srcObject = appState.localStream;
-
-                console.log('Local media initialized successfully');
-
-            } catch (error) {
-                console.error('Error accessing media devices:', error);
-
-                let errorMessage = 'Could not access camera or microphone. ';
-
-                if (error.name === 'NotAllowedError') {
-                    errorMessage += 'Please grant permissions in your browser settings.';
-                } else if (error.name === 'NotFoundError') {
-                    errorMessage += 'No camera or microphone found.';
-                } else {
-                    errorMessage += 'Please check your device connections.';
-                }
-
-                showToast(errorMessage, 'error');
-            }
-        }
-
-        // ========================================================================
-        // 3. MEDIA CONTROLS (MIC, CAMERA, SCREEN SHARE)
-        // ========================================================================
-
-        /**
-         * Toggle microphone on/off
-         */
-        function toggleMic() {
-            appState.micOn = !appState.micOn;
-
-            const btn = document.getElementById('btn-mic');
-            const icon = btn.querySelector('i');
-            const indicator = document.getElementById('local-mute-icon');
-
-            // Update audio track
-            if (appState.localStream) {
-                const audioTrack = appState.localStream.getAudioTracks()[0];
-                if (audioTrack) {
-                    audioTrack.enabled = appState.micOn;
-                }
-            }
-
-            // Update UI
-            if (appState.micOn) {
-                btn.classList.remove('is-danger');
-                icon.className = 'fas fa-microphone';
-                indicator.classList.add('hidden');
-                showToast('Microphone turned on', 'success');
-            } else {
-                btn.classList.add('is-danger');
-                icon.className = 'fas fa-microphone-slash';
-                indicator.classList.remove('hidden');
-                showToast('Microphone turned off', 'info');
-            }
-        }
-
-        /**
-         * Toggle camera on/off
-         */
-        function toggleCam() {
-            appState.camOn = !appState.camOn;
-
-            const btn = document.getElementById('btn-cam');
-            const icon = btn.querySelector('i');
-            const video = document.getElementById('local-video');
-
-            // Update video track
-            if (appState.localStream) {
-                const videoTrack = appState.localStream.getVideoTracks()[0];
-                if (videoTrack) {
-                    videoTrack.enabled = appState.camOn;
-                }
-            }
-
-            // Update UI
-            if (appState.camOn) {
-                btn.classList.remove('is-danger');
-                icon.className = 'fas fa-video';
-                video.style.opacity = '1';
-                showToast('Camera turned on', 'success');
-            } else {
-                btn.classList.add('is-danger');
-                icon.className = 'fas fa-video-slash';
-                video.style.opacity = '0.1';
-                showToast('Camera turned off', 'info');
-            }
-        }
-
-        /**
-         * Toggle screen sharing (Zoom-style layout)
-         */
-        async function toggleScreenShare() {
-            const btn = document.getElementById('btn-share');
-            const mainStage = document.getElementById('main-stage');
-            const screenView = document.getElementById('screen-share-view');
-            const screenVideo = document.getElementById('screen-share-video');
-
-            if (!appState.sharing) {
-                // START SCREEN SHARING
-                try {
-                    const displayMediaOptions = {
-                        video: {
-                            cursor: 'always',
-                            displaySurface: 'monitor'
-                        },
-                        audio: false
-                    };
-
-                    appState.screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
-
-                    screenVideo.srcObject = appState.screenStream;
-
-                    // Show screen share view
-                    screenView.classList.add('active');
-
-                    // Transform layout (video grid becomes side strip)
-                    mainStage.classList.add('is-sharing');
-
-                    // Update button state
+        const UI = {
+            toggleSidebar: () => {
+                Store.state.isSidebarOpen = !Store.state.isSidebarOpen;
+                const btn = document.getElementById('btnHamburger');
+                
+                if (Store.state.isSidebarOpen) {
+                    Store.dom.sidebar.classList.add('is-open');
                     btn.classList.add('is-active');
-
-                    appState.sharing = true;
-                    showToast('Screen sharing started', 'success');
-
-                    // Handle when user stops sharing via browser UI
-                    appState.screenStream.getVideoTracks()[0].onended = () => {
-                        stopScreenSharing();
-                    };
-
-                } catch (error) {
-                    console.error('Screen sharing error:', error);
-                    if (error.name !== 'NotAllowedError') {
-                        showToast('Could not start screen sharing', 'error');
-                    }
+                } else {
+                    Store.dom.sidebar.classList.remove('is-open');
+                    btn.classList.remove('is-active');
                 }
-            } else {
-                // STOP SCREEN SHARING
-                stopScreenSharing();
+            },
+
+            switchTab: (tabName) => {
+                // Remove active classes
+                document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+                // Add active to selected
+                const btn = Array.from(document.querySelectorAll('.sidebar-tab-btn'))
+                    .find(b => b.innerText.toLowerCase().includes(tabName));
+                if(btn) btn.classList.add('active');
+                
+                document.getElementById(`tab-${tabName}`).classList.add('active');
             }
-        }
-
-        /**
-         * Stop screen sharing and restore normal layout
-         */
-        function stopScreenSharing() {
-            const btn = document.getElementById('btn-share');
-            const mainStage = document.getElementById('main-stage');
-            const screenView = document.getElementById('screen-share-view');
-            const screenVideo = document.getElementById('screen-share-video');
-
-            // Stop all tracks
-            if (appState.screenStream) {
-                appState.screenStream.getTracks().forEach(track => track.stop());
-                appState.screenStream = null;
-            }
-
-            screenVideo.srcObject = null;
-
-            // Hide screen share view
-            screenView.classList.remove('active');
-
-            // Restore normal layout
-            mainStage.classList.remove('is-sharing');
-
-            // Update button state
-            btn.classList.remove('is-active');
-
-            appState.sharing = false;
-            showToast('Screen sharing stopped', 'info');
-        }
-
-        // ========================================================================
-        // 4. SIDEBAR & PANEL MANAGEMENT
-        // ========================================================================
-
-        /**
-         * Toggle sidebar open/close
-         */
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const menuBtn = document.getElementById('menu-btn');
-
-            appState.sidebarOpen = !appState.sidebarOpen;
-
-            if (appState.sidebarOpen) {
-                sidebar.classList.add('open');
-                menuBtn.classList.add('is-active');
-            } else {
-                sidebar.classList.remove('open');
-                menuBtn.classList.remove('is-active');
-            }
-        }
-
-        /**
-         * Switch between sidebar tabs (Chat, Participants, Settings)
-         */
-        function switchSidebarTab(tabName) {
-            // Update state
-            appState.currentSidebarTab = tabName;
-
-            // Update tab buttons
-            const tabs = document.querySelectorAll('.sidebar-tab');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-
-            // Update panels
-            const panels = document.querySelectorAll('.sidebar-panel');
-            panels.forEach(panel => panel.classList.remove('active'));
-
-            const activePanel = document.getElementById(`${tabName}-panel`);
-            if (activePanel) {
-                activePanel.classList.add('active');
-            }
-
-            // Update sidebar title
-            const titleMap = {
-                'chat': 'Chat',
-                'participants': 'Participants',
-                'settings': 'Settings'
-            };
-            document.getElementById('sidebar-title-text').textContent = titleMap[tabName] || 'Menu';
-
-            // Open sidebar if closed
-            if (!appState.sidebarOpen) {
-                toggleSidebar();
-            }
-        }
-
-        /**
-         * Toggle individual setting switches
-         */
-        function toggleSetting(element) {
-            element.classList.toggle('active');
-
-            // Get setting name from parent structure
-            const settingName = element.previousElementSibling?.querySelector('.setting-name')?.textContent;
-
-            const isActive = element.classList.contains('active');
-            const statusText = isActive ? 'enabled' : 'disabled';
-
-            if (settingName) {
-                showToast(`${settingName} ${statusText}`, 'info');
-            }
-        }
-
-        // ========================================================================
-        // 5. CHAT SYSTEM
-        // ========================================================================
-
-        /**
-         * Send a chat message
-         */
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-
-            if (!text) return;
-
-            const feed = document.getElementById('chat-feed');
-
-            // Create message bubble
-            const bubble = document.createElement('div');
-            bubble.className = 'msg-bubble outgoing';
-
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            bubble.innerHTML = `
-                <div class="msg-content">${escapeHtml(text)}</div>
-                <div class="msg-time">
-                    ${timeString}
-                    <i class="fas fa-check-double msg-status"></i>
-                </div>
-            `;
-
-            feed.appendChild(bubble);
-
-            // Clear input
-            input.value = '';
-
-            // Auto-scroll to bottom
-            feed.scrollTop = feed.scrollHeight;
-
-            // Simulate delivery sound (if notifications enabled)
-            if (appState.settings.chatNotifications) {
-                playNotificationSound();
-            }
-        }
-
-        /**
-         * Handle Enter key in chat input
-         */
-        document.addEventListener('DOMContentLoaded', function() {
-            const chatInput = document.getElementById('chat-input');
-            if (chatInput) {
-                chatInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                    }
-                });
-            }
-        });
-
-        /**
-         * Escape HTML to prevent XSS
-         */
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        /**
-         * Toggle emoji picker
-         */
-        function toggleEmojiPicker() {
-            const picker = document.getElementById('emoji-picker');
-            picker.classList.toggle('active');
-        }
-
-        /**
-         * Attach file (placeholder function)
-         */
-        function attachFile() {
-            showToast('File attachment feature coming soon!', 'info');
-        }
-
-        // ========================================================================
-        // 6. REACTIONS SYSTEM
-        // ========================================================================
-
-        /**
-         * Toggle reaction picker
-         */
-        function toggleReactionPicker() {
-            toggleEmojiPicker();
-        }
-
-        /**
-         * Send a reaction emoji (with floating animation)
-         */
-        function sendReaction(emoji) {
-            const overlay = document.getElementById('reaction-overlay');
-
-            // Create floating emoji
-            const reaction = document.createElement('div');
-            reaction.className = 'floating-reaction';
-            reaction.textContent = emoji;
-
-            // Random horizontal position
-            const randomX = Math.random() * window.innerWidth;
-            reaction.style.left = randomX + 'px';
-            reaction.style.bottom = '100px';
-
-            overlay.appendChild(reaction);
-
-            // Remove after animation completes
-            setTimeout(() => {
-                reaction.remove();
-            }, 3000);
-
-            // Close emoji picker
-            const picker = document.getElementById('emoji-picker');
-            picker.classList.remove('active');
-
-            // Optional: Show toast
-            // showToast(`You reacted with ${emoji}`, 'info');
-        }
-
-        /**
-         * Toggle hand raise
-         */
-        function toggleHand() {
-            appState.handRaised = !appState.handRaised;
-
-            const btn = document.getElementById('btn-hand');
-
-            if (appState.handRaised) {
-                btn.classList.add('is-active', 'hand-raised');
-                showToast('You raised your hand', 'info');
-
-                // Auto-lower after 30 seconds
-                setTimeout(() => {
-                    if (appState.handRaised) {
-                        toggleHand();
-                    }
-                }, 30000);
-            } else {
-                btn.classList.remove('is-active', 'hand-raised');
-                showToast('You lowered your hand', 'info');
-            }
-        }
-
-        // ========================================================================
-        // 7. TOAST NOTIFICATION SYSTEM
-        // ========================================================================
-
-        /**
-         * Show a toast notification
-         * @param {string} message - The message to display
-         * @param {string} type - Type: 'success', 'error', 'warning', 'info', or 'normal'
-         */
-        function showToast(message, type = 'normal') {
-            const container = document.getElementById('toast-box');
-
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-
-            // Icon based on type
-            let icon = '<i class="fas fa-info-circle"></i>';
-            if (type === 'success') icon = '<i class="fas fa-check-circle"></i>';
-            if (type === 'error') icon = '<i class="fas fa-exclamation-circle"></i>';
-            if (type === 'warning') icon = '<i class="fas fa-exclamation-triangle"></i>';
-
-            toast.innerHTML = `${icon}<span>${message}</span>`;
-
-            container.appendChild(toast);
-
-            // Auto-remove after 4 seconds
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    toast.remove();
-                }, 300);
-            }, 4000);
-        }
-
-        // ========================================================================
-        // 8. MEETING CONTROLS
-        // ========================================================================
-
-        /**
-         * Confirm before ending call
-         */
-        function confirmEndCall() {
-            const confirmed = confirm('Are you sure you want to leave this meeting?');
-
-            if (confirmed) {
-                endCall();
-            }
-        }
-
-        /**
-         * End the call and cleanup
-         */
-        function endCall() {
-            // Stop all media tracks
-            if (appState.localStream) {
-                appState.localStream.getTracks().forEach(track => track.stop());
-            }
-
-            if (appState.screenStream) {
-                appState.screenStream.getTracks().forEach(track => track.stop());
-            }
-
-            // Clear intervals
-            if (appState.clockInterval) clearInterval(appState.clockInterval);
-            if (appState.durationInterval) clearInterval(appState.durationInterval);
-
-            showToast('You left the meeting', 'info');
-
-            // Redirect after short delay
-            setTimeout(() => {
-                window.location.href = 'about:blank';
-            }, 1500);
-        }
-
-        /**
-         * Copy meeting code to clipboard
-         */
-        function copyMeetingCode() {
-            const code = 'shail-meet-xl42k';
-            copyText(code);
-        }
-
-        /**
-         * Copy text to clipboard
-         */
-        function copyText(text) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('Copied to clipboard!', 'success');
-                }).catch(() => {
-                    showToast('Failed to copy', 'error');
-                });
-            } else {
-                // Fallback for older browsers
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showToast('Copied to clipboard!', 'success');
-            }
-        }
-
-        /**
-         * Share meeting (placeholder)
-         */
-        function shareMeeting() {
-            const meetingLink = 'https://shailmann.meet/join/shail-meet-xl42k';
-
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Join my Shailmann Connect meeting',
-                    text: 'Join me on Shailmann Connect',
-                    url: meetingLink
-                }).catch(err => console.log('Share cancelled'));
-            } else {
-                copyText(meetingLink);
-            }
-        }
-
-        // ========================================================================
-        // 9. MODAL MANAGEMENT
-        // ========================================================================
-
-        /**
-         * Open a modal by ID
-         */
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('active');
-            }
-        }
-
-        /**
-         * Close a modal by ID
-         */
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.remove('active');
-            }
-        }
-
-        /**
-         * Close modal when clicking on backdrop
-         */
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('modal-overlay')) {
-                e.target.classList.remove('active');
-            }
-        });
-
-        // ========================================================================
-        // 10. KEYBOARD SHORTCUTS
-        // ========================================================================
-
-        /**
-         * Setup keyboard shortcuts for common actions
-         */
-        function setupKeyboardShortcuts() {
-            document.addEventListener('keydown', function(e) {
-                // Ignore if typing in input
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                    return;
-                }
-
-                // Ctrl/Cmd + D: Toggle Mic
-                if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-                    e.preventDefault();
-                    toggleMic();
-                }
-
-                // Ctrl/Cmd + E: Toggle Camera
-                if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-                    e.preventDefault();
-                    toggleCam();
-                }
-
-                // Ctrl/Cmd + Shift + E: Toggle Screen Share
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'E') {
-                    e.preventDefault();
-                    toggleScreenShare();
-                }
-
-                // Ctrl/Cmd + Shift + C: Open Chat
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
-                    e.preventDefault();
-                    switchSidebarTab('chat');
-                }
-
-                // Ctrl/Cmd + Shift + P: Open Participants
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
-                    e.preventDefault();
-                    switchSidebarTab('participants');
-                }
-            });
-        }
-
-        // ========================================================================
-        // 11. CLICK OUTSIDE LISTENERS
-        // ========================================================================
-
-        /**
-         * Setup click outside listeners for closing panels
-         */
-        function setupClickOutsideListeners() {
-            document.addEventListener('click', function(e) {
-                // Close emoji picker if clicking outside
-                const emojiPicker = document.getElementById('emoji-picker');
-                const emojiBtn = e.target.closest('.input-action-btn, .action-btn');
-
-                if (emojiPicker && !emojiPicker.contains(e.target) && !emojiBtn) {
-                    emojiPicker.classList.remove('active');
-                }
-            });
-        }
-
-        // ========================================================================
-        // 12. UTILITY FUNCTIONS
-        // ========================================================================
-
-        /**
-         * Play notification sound (placeholder)
-         */
-        function playNotificationSound() {
-            // In a real app, you would play an actual audio file
-            // const audio = new Audio('/sounds/notification.mp3');
-            // audio.play();
-            console.log('Notification sound played');
-        }
-
-        /**
-         * Format time duration
-         */
-        function formatDuration(ms) {
-            const seconds = Math.floor(ms / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const hours = Math.floor(minutes / 60);
-
-            if (hours > 0) {
-                return `${hours}:${String(minutes % 60).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-            } else {
-                return `${minutes}:${String(seconds % 60).padStart(2, '0')}`;
-            }
-        }
-
-        /**
-         * Prevent accidental page closure during meeting
-         */
-        window.addEventListener('beforeunload', function(e) {
-            if (appState.localStream) {
-                e.preventDefault();
-                e.returnValue = 'You are currently in a meeting. Are you sure you want to leave?';
-                return e.returnValue;
-            }
-        });
-
-        // ========================================================================
-        // 13. PERFORMANCE & DEBUGGING
-        // ========================================================================
-
-        /**
-         * Log application state (for debugging)
-         */
-        function logAppState() {
-            console.log('Current App State:', {
-                micOn: appState.micOn,
-                camOn: appState.camOn,
-                sharing: appState.sharing,
-                sidebarOpen: appState.sidebarOpen,
-                currentTab: appState.currentSidebarTab,
-                participantCount: appState.participants.length,
-                messageCount: appState.messages.length
-            });
-        }
-
-        // Expose to window for debugging
-        window.debugApp = {
-            state: appState,
-            logState: logAppState,
-            testToast: () => showToast('This is a test notification', 'info'),
-            testReaction: () => sendReaction('🎉')
         };
 
-        console.log('Shailmann Connect v2.0 - Ready');
-        console.log('Use window.debugApp for debugging tools');
+        // --- 4. ACTION HANDLERS (Business Logic) ---
+
+        const Actions = {
+            /** Initialize Camera */
+            initCamera: async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    Store.dom.localVideo.srcObject = stream;
+                    console.log("Media initialized");
+                } catch (e) {
+                    console.warn("Camera access denied or unavailable", e);
+                    Utils.toast("Camera access denied. Check permissions.", "error");
+                    // Show avatar instead
+                    document.getElementById('localAvatar').classList.remove('hidden');
+                }
+            },
+
+            toggleMic: () => {
+                Store.state.isMicOn = !Store.state.isMicOn;
+                const btn = document.getElementById('btnMic');
+                const icon = document.getElementById('localMuteIcon');
+                
+                // Toggle SVG Icon (Advanced manipulation)
+                const useTag = btn.querySelector('use');
+
+                if (Store.state.isMicOn) {
+                    btn.classList.remove('is-danger');
+                    useTag.setAttribute('href', '#icon-mic');
+                    icon.classList.add('hidden');
+                    Utils.toast("Microphone On", "success");
+                } else {
+                    btn.classList.add('is-danger');
+                    useTag.setAttribute('href', '#icon-mic-off');
+                    icon.classList.remove('hidden');
+                    Utils.toast("Microphone Muted", "error");
+                }
+            },
+
+            toggleCam: () => {
+                Store.state.isCamOn = !Store.state.isCamOn;
+                const btn = document.getElementById('btnCam');
+                const useTag = btn.querySelector('use');
+                const video = Store.dom.localVideo;
+                const avatar = document.getElementById('localAvatar');
+
+                if (Store.state.isCamOn) {
+                    btn.classList.remove('is-danger');
+                    useTag.setAttribute('href', '#icon-video');
+                    video.style.opacity = '1';
+                    avatar.classList.add('hidden');
+                    Utils.toast("Camera On", "success");
+                } else {
+                    btn.classList.add('is-danger');
+                    useTag.setAttribute('href', '#icon-video-off');
+                    video.style.opacity = '0';
+                    avatar.classList.remove('hidden');
+                    Utils.toast("Camera Off", "error");
+                }
+            },
+
+            toggleHand: () => {
+                Store.state.isHandRaised = !Store.state.isHandRaised;
+                const btn = document.getElementById('btnHand');
+                if(Store.state.isHandRaised) {
+                    btn.classList.add('is-active');
+                    Utils.toast("Hand Raised", "info");
+                } else {
+                    btn.classList.remove('is-active');
+                }
+            },
+
+            /** * COMPLEX LOGIC: Screen Sharing 
+             * Handles the layout shift from Grid -> Side Strip
+             */
+            toggleShare: async () => {
+                const btn = document.getElementById('btnShare');
+                
+                if (!Store.state.isSharing) {
+                    // Start Share
+                    try {
+                        const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                        Store.dom.screenVideo.srcObject = stream;
+                        
+                        // 1. Show Layer
+                        Store.dom.screenLayer.classList.add('active');
+                        // 2. Shift Layout (Grid moves to right)
+                        Store.dom.viewport.classList.add('mode-sharing');
+                        // 3. Button State
+                        btn.classList.add('is-active');
+                        
+                        Store.state.isSharing = true;
+                        Utils.toast("Screen Sharing Started", "success");
+
+                        // Handle system "Stop Sharing" button
+                        stream.getVideoTracks()[0].onended = () => Actions.stopShare();
+
+                    } catch (err) {
+                        console.error("Share cancelled", err);
+                    }
+                } else {
+                    Actions.stopShare();
+                }
+            },
+
+            stopShare: () => {
+                const btn = document.getElementById('btnShare');
+                let tracks = Store.dom.screenVideo.srcObject?.getTracks();
+                if(tracks) tracks.forEach(t => t.stop());
+                Store.dom.screenVideo.srcObject = null;
+
+                // Revert Layout
+                Store.dom.screenLayer.classList.remove('active');
+                Store.dom.viewport.classList.remove('mode-sharing');
+                btn.classList.remove('is-active');
+                
+                Store.state.isSharing = false;
+                Utils.toast("Screen Sharing Stopped", "info");
+            },
+
+            endCall: () => {
+                if(confirm("Are you sure you want to end this meeting for everyone?")) {
+                    window.location.reload();
+                }
+            }
+        };
+
+        // --- 5. CHAT MODULE ---
+
+        const Chat = {
+            sendMessage: () => {
+                const input = document.getElementById('chatInput');
+                const text = input.value.trim();
+                if(!text) return;
+
+                const feed = document.getElementById('chatFeed');
+                const bubble = document.createElement('div');
+                bubble.className = 'msg-bubble outgoing';
+                bubble.innerHTML = `
+                    <div class="msg-content">${text}</div>
+                    <div class="msg-time">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                `;
+                
+                feed.appendChild(bubble);
+                input.value = "";
+                feed.scrollTop = feed.scrollHeight;
+            }
+        };
+
+        // --- 6. INITIALIZATION ---
+
+        (function initApp() {
+            Utils.startClock();
+            Actions.initCamera();
+            
+            // Event Listener for Chat Enter Key
+            document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') Chat.sendMessage();
+            });
+
+            console.log("Shailmann Connect Application Loaded.");
+        })();
 
     </script>
-
 </body>
 </html>
