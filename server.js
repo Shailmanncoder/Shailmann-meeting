@@ -1,40 +1,35 @@
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const io = require('socket.io')(http, {
+    cors: { origin: "*", methods: ["GET", "POST"] }
+});
 const path = require('path');
 const fs = require('fs');
 
-// --- PATH CONFIGURATION ---
-// Point specifically to the 'public' folder based on your structure
-const publicPath = path.join(__dirname, 'public');
-
-// --- DEBUGGING (Check if file exists) ---
-const indexPath = path.join(publicPath, 'index.html');
-
-if (fs.existsSync(indexPath)) {
-    console.log("✅ Success: Found index.html at " + indexPath);
-} else {
-    console.error("❌ ERROR: Could not find index.html!");
-    console.error("Looking in: " + publicPath);
-    console.error("Current directory files: ", fs.readdirSync(__dirname));
-    // If public folder exists, show its content to help debug
-    if (fs.existsSync(publicPath)) {
-        console.error("Public folder contents: ", fs.readdirSync(publicPath));
-    }
+// --- PATH FINDING ---
+let clientPath = path.join(__dirname, 'public');
+if (!fs.existsSync(path.join(clientPath, 'index.html'))) {
+    clientPath = __dirname;
 }
+app.use(express.static(clientPath));
+app.get('/', (req, res) => res.sendFile(path.join(clientPath, 'index.html')));
 
-// 1. Serve static files from the 'public' folder
-app.use(express.static(publicPath));
-
-// 2. Send index.html when user visits the homepage
-app.get('/', (req, res) => {
-    res.sendFile(indexPath);
-});
-
-// --- SOCKET.IO LOGIC (The Brain) ---
+// --- SOCKET LOGIC ---
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
+
+    // --- NEW: VALIDATE ROOM EXISTENCE ---
+    socket.on('check-room', (roomId, callback) => {
+        // io.sockets.adapter.rooms is a Map of all active rooms
+        const room = io.sockets.adapter.rooms.get(roomId);
+        // If room exists and has at least 1 person (the host), return true
+        if (room && room.size > 0) {
+            callback(true);
+        } else {
+            callback(false);
+        }
+    });
 
     // Host Join
     socket.on('join-room', ({ roomId, userName }) => {
@@ -42,37 +37,35 @@ io.on('connection', (socket) => {
         socket.isHost = true;
         socket.userName = userName;
         socket.roomId = roomId;
-        socket.to(roomId).emit('user-connected', socket.id, userName);
+        console.log(`Host ${userName} created room ${roomId}`);
     });
 
     // Guest Request
     socket.on('request-entry', ({ roomId, userName }) => {
-        socket.userName = userName;
-        socket.roomId = roomId;
+        console.log(`Guest ${userName} knocking on ${roomId}`);
         socket.to(roomId).emit('entry-requested', { socketId: socket.id, userName });
     });
 
-    // Admin Actions
+    // Admin Action
     socket.on('admin-action', ({ action, targetId }) => {
         io.to(targetId).emit(action === 'approve' ? 'entry-approved' : 'entry-denied');
     });
 
-    // Guest Join Final
+    // Guest Final Join
     socket.on('join-room-final', ({ roomId, userName }) => {
         socket.join(roomId);
         socket.to(roomId).emit('user-connected', socket.id, userName);
     });
 
-    // WebRTC Signaling
-    socket.on('offer', (payload, target, name) => io.to(target).emit('offer', payload, socket.id, name));
-    socket.on('answer', (payload, target) => io.to(target).emit('answer', payload, socket.id));
-    socket.on('candidate', (cand, target) => io.to(target).emit('candidate', cand, socket.id));
+    // WebRTC & Utilities
+    socket.on('offer', (p, t, n) => io.to(t).emit('offer', p, socket.id, n));
+    socket.on('answer', (p, t) => io.to(t).emit('answer', p, socket.id));
+    socket.on('candidate', (c, t) => io.to(t).emit('candidate', c, socket.id));
+    socket.on('start-screen-share', (r) => socket.to(r).emit('screen-share-started', socket.id));
+    socket.on('stop-screen-share', (r) => socket.to(r).emit('screen-share-stopped'));
+    socket.on('chat-message', ({ roomId, msg, sender }) => socket.to(roomId).emit('chat-message', { msg, sender }));
+    socket.on('reaction', ({ roomId, emoji }) => socket.to(roomId).emit('reaction', emoji));
 
-    // Screen Share & Chat
-    socket.on('start-screen-share', (roomId) => socket.to(roomId).emit('screen-share-started', socket.id));
-    socket.on('stop-screen-share', (roomId) => socket.to(roomId).emit('screen-share-stopped'));
-    
-    // Disconnect
     socket.on('disconnect', () => {
         if (socket.roomId) socket.to(socket.roomId).emit('user-disconnected', socket.id);
     });
