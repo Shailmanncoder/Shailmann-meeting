@@ -529,12 +529,6 @@
         // --- REPLACE YOUR existing finalJoin() function with this ---
 function finalJoin() {
     const btn = document.getElementById('join-now-btn');
-    
-    if (!socket.connected) {
-        alert("Server not connected. Please refresh.");
-        return;
-    }
-
     btn.disabled = true;
 
     if (state.isHost) {
@@ -543,19 +537,18 @@ function finalJoin() {
         addToast("Meeting Created", "success");
         enterApp();
     } else {
-        // GUEST: Check Room Logic
-        btn.innerText = "Connecting...";
+        // GUEST: Check if room exists first
+        btn.innerText = "Checking...";
         
-        // This 'check-room' event requires the server code provided above
         socket.emit('check-room', state.roomId, (exists) => {
             if (exists) {
                 // Room Found: KNOCK
                 btn.innerText = "Waiting for Host...";
-                btn.style.background = "#64748b"; // Grey out button
+                btn.style.background = "#64748b"; 
                 socket.emit('request-entry', { roomId: state.roomId, userName: state.userName });
             } else {
                 // Room Not Found
-                alert("❌ Room ID not found! Check the spelling.");
+                alert("❌ Room ID not found! Ask the host for the correct ID.");
                 btn.disabled = false;
                 btn.innerText = "Join Now";
                 btn.style.background = "var(--primary)";

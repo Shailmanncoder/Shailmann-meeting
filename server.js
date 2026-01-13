@@ -4,96 +4,85 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
 
-// Serve your HTML file
-// 1. Tell Express to serve everything in 'public' as static files (css, js, images)
+// =========================================================
+// 1. FILE PATHS (Matches your Screenshot)
+// =========================================================
+
+// Serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 2. Point the main route specifically to public/index.html
+// Serve index.html when opening the site
 app.get('/', (req, res) => {
+    // This looks inside the 'public' folder for your file
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Store room details: { "MEET-123": { host: "socketId", users: [] } }
+// =========================================================
+// 2. ENTRY LOGIC (Fixes the "rtney is not working" issue)
+// =========================================================
+
 const rooms = {};
 
 io.on('connection', (socket) => {
+    console.log('User connected:', socket.id);
     
-    // 1. HOST CREATES ROOM
+    // --- HOST CREATES ROOM ---
     socket.on('join-room', ({ roomId, userName }) => {
-        // If room doesn't exist, create it and make this socket the HOST
         if (!rooms[roomId]) {
             rooms[roomId] = { host: socket.id, users: [] };
         }
-        
-        // Host joins immediately
         socket.join(roomId);
         console.log(`Host ${userName} created room ${roomId}`);
     });
 
-    // 2. GUEST CHECKS IF ROOM EXISTS (The "rtney" / Entry check)
+    // --- GUEST CHECKS IF ROOM EXISTS ---
     socket.on('check-room', (roomId, callback) => {
+        // Returns TRUE if room exists, FALSE if not
         const exists = rooms[roomId] ? true : false;
-        // Send true/false back to the frontend button
-        callback(exists); 
+        callback(exists);
     });
 
-    // 3. GUEST KNOCKS (Request Entry)
+    // --- GUEST KNOCKS (Request Entry) ---
     socket.on('request-entry', ({ roomId, userName }) => {
         const room = rooms[roomId];
         if (room && room.host) {
-            // Send the knock request ONLY to the Host
+            // Tell the Host someone is knocking
             io.to(room.host).emit('entry-requested', { 
                 userName: userName, 
-                socketId: socket.id // Send guest's ID so host knows who to admit
+                socketId: socket.id 
             });
         }
     });
 
-    // 4. HOST DECIDES (Admit or Deny)
+    // --- HOST APPROVES/DENIES ---
     socket.on('admin-action', ({ action, targetId }) => {
         if (action === 'approve') {
-            // Tell the specific guest they are approved
             io.to(targetId).emit('entry-approved');
         } else {
-            // Tell the specific guest they are denied
             io.to(targetId).emit('entry-denied');
         }
     });
 
-    // 5. GUEST FINALLY JOINS (After Approval)
+    // --- FINAL JOIN (After Approval) ---
     socket.on('join-room-final', ({ roomId, userName }) => {
         socket.join(roomId);
-        // Tell everyone else in the room a new user arrived
         socket.to(roomId).emit('user-connected', socket.id, userName);
     });
 
-    // --- STANDARD WEBRTC SIGNALING (Video/Audio) ---
-    socket.on('offer', (offer, targetId, userName) => {
-        io.to(targetId).emit('offer', offer, socket.id, userName);
-    });
+    // --- VIDEO & SCREEN SHARE SIGNALING ---
+    socket.on('offer', (o, t, u) => io.to(t).emit('offer', o, socket.id, u));
+    socket.on('answer', (a, t) => io.to(t).emit('answer', a, socket.id));
+    socket.on('candidate', (c, t) => io.to(t).emit('candidate', c, socket.id));
     
-    socket.on('answer', (answer, targetId) => {
-        io.to(targetId).emit('answer', answer, socket.id);
-    });
-    
-    socket.on('candidate', (candidate, targetId) => {
-        io.to(targetId).emit('candidate', candidate, socket.id);
-    });
-    
-    socket.on('start-screen-share', (roomId) => {
-        socket.to(roomId).emit('screen-share-started', socket.id);
-    });
-    
-    socket.on('stop-screen-share', (roomId) => {
-        socket.to(roomId).emit('screen-share-stopped');
-    });
+    socket.on('start-screen-share', (roomId) => socket.to(roomId).emit('screen-share-started', socket.id));
+    socket.on('stop-screen-share', (roomId) => socket.to(roomId).emit('screen-share-stopped'));
 
     socket.on('disconnect', () => {
-        // Clean up logic would go here
         io.emit('user-disconnected', socket.id);
     });
 });
 
-http.listen(3000, () => {
-    console.log('Server running on port 3000');
+const PORT = process.env.PORT || 3000;
+http.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
